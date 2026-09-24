@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 8000;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
+  'https://tedxbiet.netlify.app',
   ...(process.env.FRONTEND_ORIGIN
     ? process.env.FRONTEND_ORIGIN.split(',').map((origin) => origin.trim())
     : []),
@@ -21,7 +22,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow non-browser tools (no Origin) and configured frontends
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
         return;
