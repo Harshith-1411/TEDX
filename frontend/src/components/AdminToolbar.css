@@ -1,0 +1,53 @@
+.admin-toolbar {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 40;
+  background: var(--black);
+  color: var(--white);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.admin-toolbar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-block: 0.7rem;
+}
+
+.admin-toolbar-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-toolbar-status {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #b8f5c8;
+}
+
+.admin-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-toolbar-btn {
+  min-height: 2.35rem;
+  padding-inline: 0.9rem;
+  font-size: 0.75rem;
+}
+
+.admin-toolbar .btn-ghost {
+  color: var(--white);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.admin-toolbar .btn-ghost:hover {
+  border-color: var(--white);
+  color: var(--white);
+}

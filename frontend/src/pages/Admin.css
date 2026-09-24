@@ -1,0 +1,79 @@
+.admin-page {
+  min-height: calc(100vh - var(--header-height));
+  background: #efeee9;
+}
+
+.admin-narrow {
+  max-width: 560px;
+}
+
+.admin-title {
+  max-width: 760px;
+  margin-bottom: var(--space-sm);
+}
+
+.admin-lede {
+  margin-bottom: var(--space-lg);
+}
+
+.admin-form {
+  display: grid;
+  gap: var(--space-sm);
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  padding: var(--space-lg);
+}
+
+.admin-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--dark-gray);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.admin-form input {
+  width: 100%;
+  border: 1px solid #cfcfca;
+  background: var(--off-white);
+  color: var(--black);
+  padding: 0.75rem;
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.admin-password-field {
+  position: relative;
+  display: block;
+}
+
+.admin-password-field input {
+  padding-right: 3rem;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.7rem;
+  transform: translateY(-50%);
+  color: var(--dark-gray);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.password-toggle:hover {
+  color: var(--red);
+}
+
+.admin-form input:focus {
+  outline: 2px solid var(--red);
+  outline-offset: 1px;
+}
+
+.admin-error {
+  font-size: 0.9rem;
+  color: var(--red);
+}

@@ -1,0 +1,116 @@
+.member-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: var(--space-sm);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.member-editor {
+  width: min(100%, 640px);
+  max-height: min(92vh, 900px);
+  overflow: auto;
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  padding: var(--space-md);
+}
+
+.member-editor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.member-editor-header h2 {
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+}
+
+.member-editor-close {
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--dark-gray);
+  padding: 0.15rem 0.35rem;
+}
+
+.member-editor-close:hover {
+  color: var(--red);
+}
+
+.member-editor-form {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.member-editor-grid {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.member-editor-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--dark-gray);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.member-editor-form input,
+.member-editor-form textarea {
+  width: 100%;
+  border: 1px solid #cfcfca;
+  background: var(--off-white);
+  color: var(--black);
+  padding: 0.75rem;
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.member-editor-form textarea {
+  resize: vertical;
+}
+
+.member-editor-form input:focus,
+.member-editor-form textarea:focus {
+  outline: 2px solid var(--red);
+  outline-offset: 1px;
+}
+
+.member-editor-preview {
+  width: 7rem;
+  height: 7rem;
+  object-fit: cover;
+  background: var(--light-gray);
+}
+
+.member-editor-error {
+  color: var(--red);
+  font-size: 0.9rem;
+}
+
+.member-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+@media (min-width: 640px) {
+  .member-editor {
+    padding: var(--space-lg);
+  }
+
+  .member-editor-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .member-editor-span {
+    grid-column: 1 / -1;
+  }
+}

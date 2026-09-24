@@ -1,0 +1,14 @@
+.team-page {
+  background: var(--off-white);
+  padding-top: var(--space-xl);
+}
+
+.team-page-title {
+  font-size: clamp(2.25rem, 4.5vw + 0.5rem, 3.75rem);
+  margin-bottom: var(--space-md);
+}
+
+.team-page-intro {
+  max-width: 36rem;
+  margin-bottom: var(--space-xl);
+}

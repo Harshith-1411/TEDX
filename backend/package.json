@@ -1,0 +1,19 @@
+{
+  "name": "tedx-biet-backend",
+  "version": "1.0.0",
+  "description": "TEDx BIET API server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed:team": "node scripts/seedTeam.js",
+    "seed:admin": "node scripts/seedAdmin.js",
+    "seed:site": "node scripts/seedSiteSettings.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongodb": "^6.12.0"
+  }
+}

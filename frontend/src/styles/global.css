@@ -1,0 +1,277 @@
+:root {
+  --red: #eb0028;
+  --black: #000000;
+  --off-white: #f7f7f5;
+  --white: #ffffff;
+  --dark-gray: #171717;
+  --light-gray: #e5e5e5;
+  --text-muted: #5c5c5c;
+
+  --font: 'Archivo', system-ui, sans-serif;
+
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.25rem;
+  --space-xl: 3.5rem;
+  --space-2xl: 5rem;
+  --space-3xl: 6.5rem;
+
+  --header-height: 4.75rem;
+  --max-width: 1120px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font);
+  font-size: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  line-height: 1.65;
+  color: var(--black);
+  background: var(--off-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--black);
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5.5vw + 1rem, 5.5rem);
+}
+
+h2 {
+  font-size: clamp(1.85rem, 3vw + 0.75rem, 3.25rem);
+}
+
+h3 {
+  font-size: clamp(1.2rem, 1vw + 0.9rem, 1.65rem);
+}
+
+p {
+  color: var(--text-muted);
+}
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
+.container {
+  width: min(100% - 2rem, var(--max-width));
+  margin-inline: auto;
+}
+
+.section {
+  padding-block: var(--space-2xl);
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: var(--space-sm);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+
+.btn-primary {
+  background: var(--red);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: var(--black);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  color: var(--black);
+  border-bottom: 1px solid currentColor;
+  padding: 0.25rem 0;
+  letter-spacing: 0.04em;
+}
+
+.btn-ghost:hover {
+  color: var(--red);
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--red);
+  color: var(--white);
+  padding: 0.75rem 1rem;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.7s var(--ease) both;
+}
+
+.fade-up-delay-1 {
+  animation-delay: 0.12s;
+}
+
+.fade-up-delay-2 {
+  animation-delay: 0.24s;
+}
+
+.fade-up-delay-3 {
+  animation-delay: 0.36s;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--light-gray) 25%,
+    #f0f0ee 50%,
+    var(--light-gray) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 2px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --header-height: 5.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding-block: var(--space-xl);
+  }
+
+  .container {
+    width: min(100% - 1.5rem, var(--max-width));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .fade-up,
+  .fade-up-delay-1,
+  .fade-up-delay-2,
+  .fade-up-delay-3 {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .skeleton {
+    animation: none;
+  }
+
+  .btn-primary:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,9 @@
+.team-preview {
+  background: var(--white);
+}
+
+.team-preview-title {
+  margin-bottom: var(--space-xl);
+  max-width: 16ch;
+}
+

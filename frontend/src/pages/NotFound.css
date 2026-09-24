@@ -1,0 +1,25 @@
+.not-found {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  background: var(--off-white);
+}
+
+.not-found-inner {
+  max-width: 32rem;
+}
+
+.not-found-code {
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: 800;
+  color: var(--red);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: var(--space-sm);
+}
+
+.not-found h1 {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  margin-bottom: var(--space-lg);
+  color: var(--black);
+}

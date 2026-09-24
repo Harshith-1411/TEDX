@@ -1,0 +1,93 @@
+.team-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  height: 100%;
+}
+
+.team-card-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+  transition: transform 0.3s var(--ease);
+}
+
+.team-card-admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.team-card-admin-btn {
+  min-height: 2.25rem;
+  padding-inline: 0.75rem;
+  font-size: 0.7rem;
+}
+
+.team-card-admin-delete {
+  color: var(--red);
+}
+
+.team-card-link:hover {
+  transform: translateY(-3px);
+}
+
+.team-card-image-wrap {
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: var(--light-gray);
+}
+
+.team-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--ease);
+}
+
+.team-card-link:hover .team-card-image {
+  transform: scale(1.04);
+}
+
+.team-card-name {
+  font-size: clamp(1.05rem, 0.6vw + 0.9rem, 1.25rem);
+  margin-bottom: 0.2rem;
+}
+
+.team-card-role {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 0.2rem;
+}
+
+.team-card-team {
+  font-size: 0.875rem;
+  margin-bottom: 0.65rem;
+}
+
+.team-card-cta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--black);
+  border-bottom: 1px solid currentColor;
+  align-self: flex-start;
+  padding-bottom: 0.15rem;
+  transition: color 0.2s var(--ease);
+}
+
+.team-card-link:hover .team-card-cta {
+  color: var(--red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-card-link:hover,
+  .team-card-link:hover .team-card-image {
+    transform: none;
+  }
+}
