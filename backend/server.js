@@ -10,9 +10,24 @@ const { connectToDatabase } = require('./db');
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  ...(process.env.FRONTEND_ORIGIN
+    ? process.env.FRONTEND_ORIGIN.split(',').map((origin) => origin.trim())
+    : []),
+];
+
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin(origin, callback) {
+      // Allow non-browser tools (no Origin) and configured frontends
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
   })
 );
 
