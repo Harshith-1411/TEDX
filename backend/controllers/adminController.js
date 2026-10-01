@@ -114,12 +114,24 @@ async function updateMember(req, res) {
   const duplicate = await collection.findOne({ slug: member.slug, _id: { $ne: id } });
   if (duplicate) return res.status(409).json({ message: 'Slug already exists' });
 
-  // If a new image was uploaded, delete the old Cloudinary asset
+  const existing = await collection.findOne({ _id: id });
+  if (!existing) return res.status(404).json({ message: 'Team member not found' });
+
+  // Handle Cloudinary assets
   if (req.file) {
-    const existing = await collection.findOne({ _id: id }, { projection: { imagePublicId: 1 } });
-    if (existing?.imagePublicId) {
+    // A new image was uploaded; remove previous asset if it had one
+    if (existing.imagePublicId && existing.imagePublicId !== imagePublicId) {
       await tryDeleteCloudinaryImage(existing.imagePublicId);
     }
+  } else if (!member.image) {
+    // Photo was explicitly removed; delete from Cloudinary
+    if (existing.imagePublicId) {
+      await tryDeleteCloudinaryImage(existing.imagePublicId);
+    }
+    delete member.imagePublicId;
+  } else if (existing.imagePublicId) {
+    // Image was preserved; retain existing imagePublicId
+    member.imagePublicId = existing.imagePublicId;
   }
 
   const result = await collection.replaceOne({ _id: id }, member);
@@ -184,12 +196,24 @@ async function updateFaculty(req, res) {
   const duplicate = await collection.findOne({ slug: member.slug, _id: { $ne: id } });
   if (duplicate) return res.status(409).json({ message: 'Slug already exists' });
 
-  // Delete old Cloudinary image if a new one was uploaded
+  const existing = await collection.findOne({ _id: id });
+  if (!existing) return res.status(404).json({ message: 'Faculty coordinator not found' });
+
+  // Handle Cloudinary assets
   if (req.file) {
-    const existing = await collection.findOne({ _id: id }, { projection: { imagePublicId: 1 } });
-    if (existing?.imagePublicId) {
+    // A new image was uploaded; remove previous asset if it had one
+    if (existing.imagePublicId && existing.imagePublicId !== imagePublicId) {
       await tryDeleteCloudinaryImage(existing.imagePublicId);
     }
+  } else if (!member.image) {
+    // Photo was explicitly removed; delete from Cloudinary
+    if (existing.imagePublicId) {
+      await tryDeleteCloudinaryImage(existing.imagePublicId);
+    }
+    delete member.imagePublicId;
+  } else if (existing.imagePublicId) {
+    // Image was preserved; retain existing imagePublicId
+    member.imagePublicId = existing.imagePublicId;
   }
 
   const result = await collection.replaceOne({ _id: id }, member);

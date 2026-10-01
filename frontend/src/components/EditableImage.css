@@ -3,27 +3,49 @@
   overflow: hidden;
 }
 
-.editable-image-upload {
+.editable-image-controls {
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.75rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
   z-index: 2;
-  padding: 0.65rem 0.85rem;
-  background: rgba(0, 0, 0, 0.78);
-  color: var(--white);
-  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.editable-image-btn {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  line-height: 1.2;
   transition: background 0.2s var(--ease), opacity 0.2s var(--ease);
+}
+
+.editable-image-upload {
+  background: rgba(0, 0, 0, 0.82);
+  color: var(--white);
 }
 
 .editable-image-upload:hover:not(:disabled) {
   background: var(--red);
 }
 
-.editable-image-upload:disabled {
+.editable-image-remove {
+  background: rgba(180, 20, 30, 0.88);
+  color: var(--white);
+}
+
+.editable-image-remove:hover:not(:disabled) {
+  background: #dc0028;
+}
+
+.editable-image-btn:disabled {
   opacity: 0.7;
   cursor: wait;
 }

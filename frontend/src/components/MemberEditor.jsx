@@ -232,7 +232,21 @@ function MemberEditor({
             </div>
 
             {thumbnailSrc && (
-              <img className="member-editor-preview" src={thumbnailSrc} alt="" />
+              <div className="member-editor-preview-row">
+                <img className="member-editor-preview" src={thumbnailSrc} alt="" />
+                <button
+                  type="button"
+                  className="btn btn-ghost member-editor-remove-photo"
+                  onClick={() => {
+                    setImageFile(null);
+                    setPreviewUrl('');
+                    setForm((curr) => ({ ...curr, image: '' }));
+                  }}
+                  disabled={saving}
+                >
+                  Remove photo
+                </button>
+              </div>
             )}
 
             {displayError && (

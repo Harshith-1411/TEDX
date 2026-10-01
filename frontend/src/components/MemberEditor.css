@@ -84,11 +84,30 @@
   outline-offset: 1px;
 }
 
+.member-editor-preview-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: 0.5rem;
+}
+
 .member-editor-preview {
-  width: 7rem;
-  height: 7rem;
+  width: 6rem;
+  height: 6rem;
   object-fit: cover;
   background: var(--light-gray);
+  border: 1px solid var(--light-gray);
+}
+
+.member-editor-remove-photo {
+  font-size: 0.75rem;
+  color: var(--red);
+  border-color: rgba(235, 0, 40, 0.4);
+}
+
+.member-editor-remove-photo:hover {
+  color: var(--red);
+  border-color: var(--red);
 }
 
 .member-editor-error {

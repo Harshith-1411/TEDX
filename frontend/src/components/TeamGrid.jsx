@@ -196,6 +196,28 @@ function TeamGrid({
     }
   }
 
+  async function removePhoto(member) {
+    setUploadingId(member._id);
+    try {
+      const payload = { ...member, image: '' };
+      const saved = isFaculty
+        ? await updateAdminFaculty(token, member._id, payload)
+        : await updateAdminMember(token, member._id, payload);
+      setMembers((current) =>
+        current.map((item) => (item._id === saved._id ? saved : item))
+      );
+      setStatusMessage(`Photo removed for ${saved.name}`);
+    } catch (requestError) {
+      if (requestError.status === 401) {
+        handleAuthFailure();
+        return;
+      }
+      setStatusMessage(requestError.data?.message || 'Unable to remove photo.');
+    } finally {
+      setUploadingId(null);
+    }
+  }
+
   const visible = limit ? members.slice(0, limit) : members;
   const emptyLabel = isFaculty ? 'No faculty coordinators yet.' : 'No team members yet.';
   const errorLabel = isFaculty
@@ -254,6 +276,7 @@ function TeamGrid({
               onEdit={openEdit}
               onDelete={removeMember}
               onUploadPhoto={uploadPhoto}
+              onRemovePhoto={removePhoto}
             />
           ))}
         </div>

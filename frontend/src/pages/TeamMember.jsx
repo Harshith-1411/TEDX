@@ -167,6 +167,27 @@ function TeamMember() {
     }
   }
 
+  async function removePhoto() {
+    if (!member) return;
+    setUploading(true);
+    try {
+      const payload = { ...member, image: '' };
+      const saved = isFaculty
+        ? await updateAdminFaculty(token, member._id, payload)
+        : await updateAdminMember(token, member._id, payload);
+      setMember(saved);
+      setStatusMessage('Photo removed.');
+    } catch (requestError) {
+      if (requestError.status === 401) {
+        handleAuthFailure();
+        return;
+      }
+      setStatusMessage(requestError.data?.message || 'Unable to remove photo.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function removeMember() {
     if (!window.confirm(`Remove ${member.name}?`)) return;
 
@@ -259,6 +280,7 @@ function TeamMember() {
             canEdit={isAdmin}
             uploading={uploading}
             onUpload={uploadPhoto}
+            onRemove={removePhoto}
           />
           <div className="profile-intro">
             <span className="section-label">

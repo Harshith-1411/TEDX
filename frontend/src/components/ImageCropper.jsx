@@ -161,17 +161,20 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
     const sh = crop.size * scaleY;
 
     const canvas = document.createElement('canvas');
-    // 1200px gives a good balance: high enough for profile photo quality
-    // without sending enormous files. Cloudinary stores this as the original
-    // and can deliver smaller sizes via URL transformations if needed.
-    const output = Math.min(1200, Math.round(sw));
+    // Allow up to 2048px for sharp profile photos on Retina and high-DPI displays.
+    const output = Math.min(2048, Math.max(800, Math.round(sw)));
     canvas.width = output;
     canvas.height = output;
     const ctx = canvas.getContext('2d');
+
+    // Use high-quality bicubic smoothing for crisp downsampling
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     ctx.drawImage(image, sx, sy, sw, sh, 0, 0, output, output);
 
     // Convert canvas to a File so we can upload it as multipart/form-data
-    // instead of sending a large base64 string in the JSON body.
+    // 0.96 quality preserves fine details without noticeable compression artifacts.
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
@@ -179,7 +182,7 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
         onConfirm(file);
       },
       'image/jpeg',
-      0.92
+      0.96
     );
   }
 

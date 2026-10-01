@@ -10,6 +10,7 @@ function TeamCard({
   onEdit,
   onDelete,
   onUploadPhoto,
+  onRemovePhoto,
 }) {
   // member.image is now a Cloudinary URL (or empty string) included directly
   // in the API response. No separate image fetch needed.
@@ -28,6 +29,11 @@ function TeamCard({
           onUpload={
             isAdmin
               ? (imageFile) => onUploadPhoto?.(member, imageFile)
+              : undefined
+          }
+          onRemove={
+            isAdmin
+              ? () => onRemovePhoto?.(member)
               : undefined
           }
         />

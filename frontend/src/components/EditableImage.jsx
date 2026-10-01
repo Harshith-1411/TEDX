@@ -11,6 +11,7 @@ function EditableImage({
   wrapClassName = '',
   canEdit = false,
   onUpload,
+  onRemove,
   uploading = false,
 }) {
   const inputRef = useRef(null);
@@ -59,10 +60,10 @@ function EditableImage({
         loading="lazy"
       />
       {canEdit && (
-        <>
+        <div className="editable-image-controls">
           <button
             type="button"
-            className="editable-image-upload"
+            className="editable-image-btn editable-image-upload"
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -72,6 +73,22 @@ function EditableImage({
           >
             {uploading ? 'Uploading…' : src ? 'Change photo' : 'Upload photo'}
           </button>
+          {Boolean(src) && typeof onRemove === 'function' && (
+            <button
+              type="button"
+              className="editable-image-btn editable-image-remove"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (window.confirm('Are you sure you want to remove this photo?')) {
+                  onRemove();
+                }
+              }}
+              disabled={uploading}
+            >
+              Remove photo
+            </button>
+          )}
           <input
             ref={inputRef}
             type="file"
@@ -87,7 +104,7 @@ function EditableImage({
             onCancel={handleCropCancel}
             onConfirm={handleCropConfirm}
           />
-        </>
+        </div>
       )}
     </div>
   );
