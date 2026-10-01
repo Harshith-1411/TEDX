@@ -1,11 +1,17 @@
 .team-grid-wrap {
   display: grid;
   gap: var(--space-md);
+  overflow: visible;
 }
 
 .team-admin-status {
   font-size: 0.9rem;
   color: #14733c;
+}
+
+.team-grid-admin-bar {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .team-grid {

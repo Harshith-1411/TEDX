@@ -5,11 +5,14 @@ import './TeamCard.css';
 function TeamCard({
   member,
   isAdmin = false,
+  isFaculty = false,
   uploadingId = null,
   onEdit,
   onDelete,
   onUploadPhoto,
 }) {
+  // member.image is now a Cloudinary URL (or empty string) included directly
+  // in the API response. No separate image fetch needed.
   const uploading = uploadingId === member._id;
 
   return (
@@ -24,14 +27,16 @@ function TeamCard({
           uploading={uploading}
           onUpload={
             isAdmin
-              ? (image) => onUploadPhoto?.(member, image)
+              ? (imageFile) => onUploadPhoto?.(member, imageFile)
               : undefined
           }
         />
         <div className="team-card-body">
           <h3 className="team-card-name">{member.name}</h3>
           <p className="team-card-role">{member.role}</p>
-          <p className="team-card-team">{member.team}</p>
+          {!isFaculty && member.team ? (
+            <p className="team-card-team">{member.team}</p>
+          ) : null}
           <span className="team-card-cta">
             View Profile <span aria-hidden="true">→</span>
           </span>

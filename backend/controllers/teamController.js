@@ -3,9 +3,9 @@ const { getTeamCollection } = require('../db');
 async function getAllTeamMembers(req, res) {
   try {
     const collection = await getTeamCollection();
-    const members = await collection
-      .find({}, { projection: { _id: 0 } })
-      .toArray();
+    // Images are now Cloudinary URLs (lightweight strings), so we can safely
+    // include them in the list response without hitting Netlify's 6 MB limit.
+    const members = await collection.find({}).toArray();
     res.json(members);
   } catch (error) {
     console.error('Unable to load team data:', error);

@@ -21,6 +21,13 @@ function AdminToolbar({ statusMessage = '' }) {
           </Link>
           <button
             type="button"
+            className="btn btn-ghost admin-toolbar-btn"
+            onClick={() => navigate('/?addFaculty=1#faculty')}
+          >
+            Add faculty
+          </button>
+          <button
+            type="button"
             className="btn btn-primary admin-toolbar-btn"
             onClick={() => navigate('/team?add=1')}
           >

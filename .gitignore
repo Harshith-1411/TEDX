@@ -13,3 +13,6 @@ Thumbs.db
 
 # Test and coverage output
 coverage/
+
+# Netlify Functions local install
+netlify/functions/node_modules/

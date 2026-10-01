@@ -11,13 +11,51 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+.footer-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.footer-logo-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
 .footer-logo {
   width: auto;
   height: clamp(2.5rem, 5vw, 3.25rem);
   max-width: min(100%, 280px);
   object-fit: contain;
   object-position: left center;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
+}
+
+.footer-logo-edit-btn {
+  color: rgba(235, 0, 40, 0.95);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  padding: 0.1rem 0;
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s var(--ease);
+}
+
+.footer-logo-edit-btn:hover:not(:disabled) {
+  color: var(--white);
+}
+
+.footer-logo-edit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .footer-tagline {
@@ -61,6 +99,12 @@
 .footer-placeholder {
   color: rgba(255, 255, 255, 0.45);
   font-size: 0.95rem;
+}
+
+.footer-admin-status {
+  margin-top: var(--space-sm);
+  font-size: 0.8rem;
+  color: #7dcea0;
 }
 
 .footer-note {

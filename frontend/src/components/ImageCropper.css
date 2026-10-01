@@ -1,0 +1,81 @@
+.image-cropper-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--header-height) + var(--space-sm)) var(--space-sm) var(--space-sm);
+  background: rgba(0, 0, 0, 0.7);
+  overflow: auto;
+}
+
+.image-cropper {
+  width: min(100%, 560px);
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  padding: var(--space-md);
+  display: grid;
+  gap: var(--space-md);
+}
+
+.image-cropper-header h2 {
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  margin: 0;
+}
+
+.image-cropper-hint {
+  margin: 0.35rem 0 0;
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+}
+
+.image-cropper-frame {
+  position: relative;
+  width: 100%;
+  height: min(58vh, 420px);
+  background: #111;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+
+.image-cropper-image {
+  position: absolute;
+  display: block;
+  max-width: none;
+  pointer-events: none;
+}
+
+.image-cropper-box {
+  position: absolute;
+  border: 2px solid var(--white);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  cursor: move;
+  touch-action: none;
+  z-index: 1;
+}
+
+.image-cropper-handle {
+  position: absolute;
+  right: -7px;
+  bottom: -7px;
+  width: 16px;
+  height: 16px;
+  background: var(--red);
+  border: 2px solid var(--white);
+  cursor: nwse-resize;
+  touch-action: none;
+}
+
+.image-cropper-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+@media (min-width: 640px) {
+  .image-cropper {
+    padding: var(--space-lg);
+  }
+}

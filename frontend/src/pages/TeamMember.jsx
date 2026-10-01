@@ -2,13 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuth';
 import {
+  deleteAdminFaculty,
   deleteAdminMember,
+  getAdminFaculty,
   getAdminMembers,
+  getFacultyBySlug,
   getTeamMemberBySlug,
+  updateAdminFaculty,
   updateAdminMember,
 } from '../services/api';
 import EditableImage from '../components/EditableImage';
 import MemberEditor from '../components/MemberEditor';
+import SocialLinks, { memberSocialItems } from '../components/SocialLinks';
 import './TeamMember.css';
 
 function ProfileSkeleton() {
@@ -24,11 +29,37 @@ function ProfileSkeleton() {
   );
 }
 
+async function findBySlug({ slug, isAdmin, token }) {
+  if (isAdmin) {
+    const [team, faculty] = await Promise.all([
+      getAdminMembers(token),
+      getAdminFaculty(token),
+    ]);
+    const teamMatch = team.find((item) => item.slug === slug);
+    if (teamMatch) return { data: teamMatch, kind: 'team' };
+    const facultyMatch = faculty.find((item) => item.slug === slug);
+    if (facultyMatch) return { data: facultyMatch, kind: 'faculty' };
+    const err = new Error('Not found');
+    err.status = 404;
+    throw err;
+  }
+
+  try {
+    const data = await getTeamMemberBySlug(slug);
+    return { data, kind: 'team' };
+  } catch (teamError) {
+    if (teamError.status !== 404) throw teamError;
+    const data = await getFacultyBySlug(slug);
+    return { data, kind: 'faculty' };
+  }
+}
+
 function TeamMember() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { isAdmin, token, clearSession } = useAdminAuth();
   const [member, setMember] = useState(null);
+  const [kind, setKind] = useState('team');
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState(false);
@@ -37,6 +68,8 @@ function TeamMember() {
   const [editorError, setEditorError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+
+  const isFaculty = kind === 'faculty';
 
   const handleAuthFailure = useCallback(() => {
     clearSession();
@@ -53,21 +86,10 @@ function TeamMember() {
 
     async function load() {
       try {
-        let data;
-        if (isAdmin) {
-          const members = await getAdminMembers(token);
-          data = members.find((item) => item.slug === slug);
-          if (!data) {
-            const err = new Error('Not found');
-            err.status = 404;
-            throw err;
-          }
-        } else {
-          data = await getTeamMemberBySlug(slug);
-        }
-
+        const { data, kind: foundKind } = await findBySlug({ slug, isAdmin, token });
         if (!cancelled) {
           setMember(data);
+          setKind(foundKind);
           document.title = `${data.name} | TEDx BIET`;
         }
       } catch (err) {
@@ -78,7 +100,7 @@ function TeamMember() {
           }
           if (err.status === 404) {
             setNotFound(true);
-            document.title = 'Team member not found | TEDx BIET';
+            document.title = 'Profile not found | TEDx BIET';
           } else {
             setError(true);
             document.title = 'Error | TEDx BIET';
@@ -100,7 +122,9 @@ function TeamMember() {
     setEditorError('');
 
     try {
-      const saved = await updateAdminMember(token, member._id, form);
+      const saved = isFaculty
+        ? await updateAdminFaculty(token, member._id, form)
+        : await updateAdminMember(token, member._id, form);
       setMember(saved);
       setEditorOpen(false);
       setStatusMessage('Details saved');
@@ -113,7 +137,10 @@ function TeamMember() {
         handleAuthFailure();
         return;
       }
-      setEditorError(requestError.data?.message || 'Unable to save team member.');
+      setEditorError(
+        requestError.data?.message ||
+          (isFaculty ? 'Unable to save faculty coordinator.' : 'Unable to save team member.')
+      );
     } finally {
       setSaving(false);
     }
@@ -122,7 +149,10 @@ function TeamMember() {
   async function uploadPhoto(image) {
     setUploading(true);
     try {
-      const saved = await updateAdminMember(token, member._id, { ...member, image });
+      const payload = { ...member, image };
+      const saved = isFaculty
+        ? await updateAdminFaculty(token, member._id, payload)
+        : await updateAdminMember(token, member._id, payload);
       setMember(saved);
       setStatusMessage('Photo updated');
     } catch (requestError) {
@@ -141,8 +171,13 @@ function TeamMember() {
     if (!window.confirm(`Remove ${member.name}?`)) return;
 
     try {
-      await deleteAdminMember(token, member._id);
-      navigate('/team', { replace: true });
+      if (isFaculty) {
+        await deleteAdminFaculty(token, member._id);
+        navigate('/', { replace: true });
+      } else {
+        await deleteAdminMember(token, member._id);
+        navigate('/team', { replace: true });
+      }
     } catch (requestError) {
       if (requestError.status === 401) {
         handleAuthFailure();
@@ -167,7 +202,7 @@ function TeamMember() {
     return (
       <section className="section profile-page profile-state">
         <div className="container">
-          <h1>Team member not found.</h1>
+          <h1>Profile not found.</h1>
           <Link to="/team" className="btn btn-ghost">
             ← Back to Team
           </Link>
@@ -190,10 +225,8 @@ function TeamMember() {
     );
   }
 
-  const hasEmail = Boolean(member.email);
-  const hasLinkedIn = Boolean(member.linkedin);
-  const hasInstagram = Boolean(member.instagram);
-  const showSocial = hasEmail || hasLinkedIn || hasInstagram || isAdmin;
+  const socialItems = memberSocialItems(member);
+  const showSocial = socialItems.length > 0 || isAdmin;
 
   return (
     <article className="section profile-page">
@@ -211,7 +244,7 @@ function TeamMember() {
               Edit details
             </button>
             <button type="button" className="btn btn-ghost profile-admin-delete" onClick={removeMember}>
-              Remove member
+              {isFaculty ? 'Remove coordinator' : 'Remove member'}
             </button>
             {statusMessage && <p className="profile-admin-status">{statusMessage}</p>}
           </div>
@@ -228,7 +261,9 @@ function TeamMember() {
             onUpload={uploadPhoto}
           />
           <div className="profile-intro">
-            <span className="section-label">TEDx BIET</span>
+            <span className="section-label">
+              {isFaculty ? 'Faculty Coordinator' : 'TEDx BIET'}
+            </span>
             <h1 className="profile-name">{member.name}</h1>
             <p className="profile-role">{member.role}</p>
             <p className="profile-org">TEDx BIET</p>
@@ -253,10 +288,12 @@ function TeamMember() {
               <h2 className="profile-section-title">Role</h2>
               <p className="profile-meta-value">{member.role}</p>
             </div>
-            <div>
-              <h2 className="profile-section-title">Team</h2>
-              <p className="profile-meta-value">{member.team}</p>
-            </div>
+            {!isFaculty && (
+              <div>
+                <h2 className="profile-section-title">Team</h2>
+                <p className="profile-meta-value">{member.team}</p>
+              </div>
+            )}
           </div>
 
           {showSocial && (
@@ -264,43 +301,17 @@ function TeamMember() {
               <h2 id="social-heading" className="profile-section-title">
                 Social Links
               </h2>
-              <ul>
-                {hasLinkedIn && (
-                  <li>
-                    <a
-                      href={member.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      LinkedIn
-                    </a>
-                  </li>
-                )}
-                {hasInstagram && (
-                  <li>
-                    <a
-                      href={member.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Instagram
-                    </a>
-                  </li>
-                )}
-                {hasEmail && (
-                  <li>
-                    <a href={`mailto:${member.email}`}>Email</a>
-                  </li>
-                )}
-                {isAdmin && !hasLinkedIn && !hasInstagram && !hasEmail && (
-                  <li className="profile-social-empty">No links yet — use Edit details to add them.</li>
-                )}
-              </ul>
+              <SocialLinks
+                items={socialItems}
+                emptyMessage={
+                  isAdmin ? 'No links yet — use Edit details to add them.' : ''
+                }
+              />
             </section>
           )}
 
-          <Link to="/team" className="btn btn-ghost profile-back">
-            ← Back to Team
+          <Link to={isFaculty ? '/#faculty' : '/team'} className="btn btn-ghost profile-back">
+            {isFaculty ? '← Back to Faculty' : '← Back to Team'}
           </Link>
         </div>
       </div>
@@ -309,6 +320,7 @@ function TeamMember() {
         <MemberEditor
           open={editorOpen}
           mode="edit"
+          category={isFaculty ? 'faculty' : 'team'}
           initialMember={member}
           saving={saving}
           error={editorError}

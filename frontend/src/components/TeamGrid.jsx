@@ -2,10 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuth';
 import {
+  createAdminFaculty,
   createAdminMember,
+  deleteAdminFaculty,
   deleteAdminMember,
+  getAdminFaculty,
   getAdminMembers,
+  getFacultyMembers,
   getTeamMembers,
+  updateAdminFaculty,
   updateAdminMember,
 } from '../services/api';
 import MemberEditor from './MemberEditor';
@@ -26,7 +31,12 @@ function TeamSkeleton() {
   );
 }
 
-function TeamGrid({ limit, showViewAll = false }) {
+function TeamGrid({
+  limit,
+  showViewAll = false,
+  category = 'team',
+  allowAdd = false,
+}) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAdmin, token, clearSession } = useAdminAuth();
@@ -41,6 +51,8 @@ function TeamGrid({ limit, showViewAll = false }) {
   const [uploadingId, setUploadingId] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
 
+  const isFaculty = category === 'faculty';
+
   const handleAuthFailure = useCallback(() => {
     clearSession();
     navigate('/admin/login', { replace: true });
@@ -53,7 +65,12 @@ function TeamGrid({ limit, showViewAll = false }) {
       setLoading(true);
       setError(false);
       try {
-        const data = isAdmin ? await getAdminMembers(token) : await getTeamMembers();
+        let data;
+        if (isFaculty) {
+          data = isAdmin ? await getAdminFaculty(token) : await getFacultyMembers();
+        } else {
+          data = isAdmin ? await getAdminMembers(token) : await getTeamMembers();
+        }
         if (!cancelled) setMembers(data);
       } catch (requestError) {
         if (cancelled) return;
@@ -71,19 +88,27 @@ function TeamGrid({ limit, showViewAll = false }) {
     return () => {
       cancelled = true;
     };
-  }, [handleAuthFailure, isAdmin, token]);
+  }, [handleAuthFailure, isAdmin, token, isFaculty]);
 
   useEffect(() => {
     if (!isAdmin) return;
-    if (searchParams.get('add') !== '1') return;
+    const addParam = isFaculty ? 'addFaculty' : 'add';
+    if (searchParams.get(addParam) !== '1') return;
     setEditorMode('create');
     setEditingMember(null);
     setEditorError('');
     setEditorOpen(true);
     const next = new URLSearchParams(searchParams);
-    next.delete('add');
+    next.delete(addParam);
     setSearchParams(next, { replace: true });
-  }, [isAdmin, searchParams, setSearchParams]);
+  }, [isAdmin, searchParams, setSearchParams, isFaculty]);
+
+  function openCreate() {
+    setEditorMode('create');
+    setEditingMember(null);
+    setEditorError('');
+    setEditorOpen(true);
+  }
 
   function openEdit(member) {
     setEditorMode('edit');
@@ -98,11 +123,15 @@ function TeamGrid({ limit, showViewAll = false }) {
 
     try {
       if (editorMode === 'create') {
-        const saved = await createAdminMember(token, form);
+        const saved = isFaculty
+          ? await createAdminFaculty(token, form)
+          : await createAdminMember(token, form);
         setMembers((current) => [...current, saved].sort((a, b) => a.name.localeCompare(b.name)));
         setStatusMessage(`${saved.name} created`);
       } else {
-        const saved = await updateAdminMember(token, editingMember._id, form);
+        const saved = isFaculty
+          ? await updateAdminFaculty(token, editingMember._id, form)
+          : await updateAdminMember(token, editingMember._id, form);
         setMembers((current) =>
           current.map((member) => (member._id === saved._id ? saved : member))
         );
@@ -114,17 +143,25 @@ function TeamGrid({ limit, showViewAll = false }) {
         handleAuthFailure();
         return;
       }
-      setEditorError(requestError.data?.message || 'Unable to save team member.');
+      setEditorError(
+        requestError.data?.message ||
+          (isFaculty ? 'Unable to save faculty coordinator.' : 'Unable to save team member.')
+      );
     } finally {
       setSaving(false);
     }
   }
 
   async function removeMember(member) {
+    const label = isFaculty ? 'faculty coordinator' : 'member';
     if (!window.confirm(`Remove ${member.name}?`)) return;
 
     try {
-      await deleteAdminMember(token, member._id);
+      if (isFaculty) {
+        await deleteAdminFaculty(token, member._id);
+      } else {
+        await deleteAdminMember(token, member._id);
+      }
       setMembers((current) => current.filter((item) => item._id !== member._id));
       setStatusMessage(`${member.name} removed`);
     } catch (requestError) {
@@ -132,14 +169,17 @@ function TeamGrid({ limit, showViewAll = false }) {
         handleAuthFailure();
         return;
       }
-      setStatusMessage(requestError.data?.message || 'Unable to remove member.');
+      setStatusMessage(requestError.data?.message || `Unable to remove ${label}.`);
     }
   }
 
   async function uploadPhoto(member, image) {
     setUploadingId(member._id);
     try {
-      const saved = await updateAdminMember(token, member._id, { ...member, image });
+      const payload = { ...member, image };
+      const saved = isFaculty
+        ? await updateAdminFaculty(token, member._id, payload)
+        : await updateAdminMember(token, member._id, payload);
       setMembers((current) =>
         current.map((item) => (item._id === saved._id ? saved : item))
       );
@@ -157,11 +197,17 @@ function TeamGrid({ limit, showViewAll = false }) {
   }
 
   const visible = limit ? members.slice(0, limit) : members;
+  const emptyLabel = isFaculty ? 'No faculty coordinators yet.' : 'No team members yet.';
+  const errorLabel = isFaculty
+    ? 'Unable to load faculty coordinators.'
+    : 'Unable to load team members.';
 
   if (loading) {
     return (
       <div className="team-grid-state">
-        <p className="team-status">Loading the team...</p>
+        <p className="team-status">
+          {isFaculty ? 'Loading faculty…' : 'Loading the team...'}
+        </p>
         <TeamSkeleton />
       </div>
     );
@@ -170,7 +216,7 @@ function TeamGrid({ limit, showViewAll = false }) {
   if (error) {
     return (
       <div className="team-grid-state team-error" role="alert">
-        <p>Unable to load team members.</p>
+        <p>{errorLabel}</p>
         <p className="team-error-sub">Try again later.</p>
       </div>
     );
@@ -184,19 +230,34 @@ function TeamGrid({ limit, showViewAll = false }) {
         </p>
       )}
 
-      <div className="team-grid">
-        {visible.map((member) => (
-          <TeamCard
-            key={member._id || member.slug}
-            member={member}
-            isAdmin={isAdmin}
-            uploadingId={uploadingId}
-            onEdit={openEdit}
-            onDelete={removeMember}
-            onUploadPhoto={uploadPhoto}
-          />
-        ))}
-      </div>
+      {isAdmin && allowAdd && (
+        <div className="team-grid-admin-bar">
+          <button type="button" className="btn btn-primary" onClick={openCreate}>
+            {isFaculty ? 'Add faculty coordinator' : 'Add team member'}
+          </button>
+        </div>
+      )}
+
+      {visible.length === 0 ? (
+        <div className="team-grid-state">
+          <p className="team-status">{emptyLabel}</p>
+        </div>
+      ) : (
+        <div className="team-grid">
+          {visible.map((member) => (
+            <TeamCard
+              key={member._id || member.slug}
+              member={member}
+              isAdmin={isAdmin}
+              isFaculty={isFaculty}
+              uploadingId={uploadingId}
+              onEdit={openEdit}
+              onDelete={removeMember}
+              onUploadPhoto={uploadPhoto}
+            />
+          ))}
+        </div>
+      )}
 
       {showViewAll && members.length > (limit || 0) && (
         <div className="team-view-all">
@@ -210,6 +271,7 @@ function TeamGrid({ limit, showViewAll = false }) {
         <MemberEditor
           open={editorOpen}
           mode={editorMode}
+          category={category}
           initialMember={editingMember}
           saving={saving}
           error={editorError}

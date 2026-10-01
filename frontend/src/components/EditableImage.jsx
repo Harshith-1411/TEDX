@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { readImageAsBase64 } from '../utils/readImageAsBase64';
+import ImageCropper from './ImageCropper';
 import './EditableImage.css';
 
 const PLACEHOLDER = '/team/placeholder-1.svg';
@@ -15,19 +15,39 @@ function EditableImage({
 }) {
   const inputRef = useRef(null);
   const [localError, setLocalError] = useState('');
+  // cropSrc is a temporary object URL used to display the image in the cropper
+  const [cropSrc, setCropSrc] = useState('');
 
-  async function handleChange(event) {
+  function handleChange(event) {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file || !onUpload) return;
 
+    if (!file.type.startsWith('image/')) {
+      setLocalError('Please choose an image file.');
+      return;
+    }
+
     setLocalError('');
+    // Create a temporary blob URL for the cropper preview
+    const objectUrl = URL.createObjectURL(file);
+    setCropSrc(objectUrl);
+  }
+
+  async function handleCropConfirm(croppedFile) {
+    // Release the temporary preview URL
+    URL.revokeObjectURL(cropSrc);
+    setCropSrc('');
     try {
-      const dataUrl = await readImageAsBase64(file);
-      await onUpload(dataUrl);
+      await onUpload(croppedFile);
     } catch (error) {
       setLocalError(error.message || 'Unable to upload photo.');
     }
+  }
+
+  function handleCropCancel() {
+    URL.revokeObjectURL(cropSrc);
+    setCropSrc('');
   }
 
   return (
@@ -61,6 +81,12 @@ function EditableImage({
             tabIndex={-1}
           />
           {localError && <p className="editable-image-error">{localError}</p>}
+          <ImageCropper
+            open={Boolean(cropSrc)}
+            src={cropSrc}
+            onCancel={handleCropCancel}
+            onConfirm={handleCropConfirm}
+          />
         </>
       )}
     </div>

@@ -1,5 +1,12 @@
 .team-preview {
   background: var(--white);
+  overflow: visible;
+}
+
+.faculty-preview {
+  background: var(--off-white);
+  overflow: visible;
+  scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
 .team-preview-title {

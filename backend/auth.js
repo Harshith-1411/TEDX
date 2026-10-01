@@ -1,7 +1,5 @@
 const crypto = require('crypto');
-const { getAdminCollection } = require('./db');
-
-const sessions = new Map();
+const { getAdminCollection, getSessionsCollection } = require('./db');
 
 function hashPassword(password, salt) {
   return new Promise((resolve, reject) => {
@@ -22,25 +20,39 @@ async function login(username, password) {
   if (passwordHash !== admin.passwordHash) return null;
 
   const token = crypto.randomBytes(32).toString('hex');
-  sessions.set(token, { createdAt: Date.now() });
+  // Persist sessions so admin auth works across Netlify Function instances
+  await (await getSessionsCollection()).insertOne({
+    token,
+    createdAt: new Date(),
+  });
   return token;
 }
 
-function requireAdmin(req, res, next) {
-  const authorization = req.get('authorization') || '';
-  const token = authorization.startsWith('Bearer ')
-    ? authorization.slice(7)
-    : '';
+async function requireAdmin(req, res, next) {
+  try {
+    const authorization = req.get('authorization') || '';
+    const token = authorization.startsWith('Bearer ')
+      ? authorization.slice(7)
+      : '';
 
-  if (!token || !sessions.has(token)) {
-    return res.status(401).json({ message: 'Admin authentication required' });
+    if (!token) {
+      return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    const session = await (await getSessionsCollection()).findOne({ token });
+    if (!session) {
+      return res.status(401).json({ message: 'Admin authentication required' });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
   }
-
-  next();
 }
 
-function logout(token) {
-  sessions.delete(token);
+async function logout(token) {
+  if (!token) return;
+  await (await getSessionsCollection()).deleteOne({ token });
 }
 
 module.exports = { hashPassword, login, logout, requireAdmin };

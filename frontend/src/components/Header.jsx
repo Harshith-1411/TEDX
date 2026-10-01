@@ -1,18 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuth';
+import { updateAdminLogo } from '../services/api';
 import './Header.css';
 
-function Header({ siteSettings }) {
-  const { isAdmin, logout } = useAdminAuth();
+function Header({ siteSettings = {}, onSiteSettingsChange }) {
+  const { isAdmin, token, clearSession, logout } = useAdminAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const updated = await updateAdminLogo(token, 'header', file);
+      if (typeof onSiteSettingsChange === 'function') {
+        onSiteSettingsChange(updated);
+      }
+    } catch (err) {
+      if (err.status === 401) {
+        clearSession?.();
+      } else {
+        alert(err.data?.message || 'Failed to update header logo.');
+      }
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const navLinks = [
     { to: '/', label: 'Home', end: true },
-    { to: '/#about', label: 'About', hash: true },
+    { to: '/#faculty', label: 'Faculty', hash: true },
     { to: '/team', label: 'Team' },
-    { to: '/#contact', label: 'Contact', hash: true },
     ...(!isAdmin ? [{ to: '/admin/login', label: 'Admin Login' }] : []),
   ];
 
@@ -43,19 +66,41 @@ function Header({ siteSettings }) {
   return (
     <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="container header-inner">
-        <Link to="/" className="site-logo" onClick={closeMenu}>
-          {siteSettings.headerLogo ? (
-            <img
-              src={siteSettings.headerLogo}
-              alt="TEDx Bharat Institute of Engineering and Technology"
-              className="site-logo-img"
-              width={280}
-              height={64}
-            />
-          ) : (
-            <span className="site-logo-img">TED<span aria-hidden="true">x</span> BIET</span>
+        <div className="header-brand-wrap">
+          <Link to="/" className="site-logo" onClick={closeMenu}>
+            {siteSettings.headerLogo ? (
+              <img
+                src={siteSettings.headerLogo}
+                alt="TEDx Bharat Institute of Engineering and Technology"
+                className="site-logo-img"
+                width={280}
+                height={64}
+              />
+            ) : (
+              <span className="site-logo-img">TED<span aria-hidden="true">x</span> BIET</span>
+            )}
+          </Link>
+          {isAdmin && (
+            <div className="header-logo-actions">
+              <button
+                type="button"
+                className="social-link-edit logo-edit-btn header-logo-edit-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                aria-label="Edit header logo"
+              >
+                {uploading ? 'Uploading...' : 'Edit'}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleLogoUpload}
+              />
+            </div>
           )}
-        </Link>
+        </div>
 
         <nav className="desktop-nav" aria-label="Primary">
           {navLinks.map((link) =>

@@ -2,25 +2,47 @@ const { MongoClient } = require('mongodb');
 
 const databaseName = 'TEDX';
 const collectionName = 'Team_Details';
+const facultyCollectionName = 'Faculty Coordinator';
 const adminCollectionName = 'Admin_Credentials';
 const siteSettingsCollectionName = 'Site_Settings';
+const footerCollectionName = 'Footer';
+const sessionsCollectionName = 'Admin_Sessions';
 let client;
 let database;
+let connecting;
 
 async function connectToDatabase() {
+  if (database) return database;
+
   if (!process.env.MONGO_URI) {
-    throw new Error('MONGO_URI is not set in backend/.env');
+    throw new Error('MONGO_URI is not set');
   }
 
-  client = new MongoClient(process.env.MONGO_URI);
-  await client.connect();
-  database = client.db(databaseName);
-  console.log(`Connected to MongoDB database ${databaseName}`);
+  if (!connecting) {
+    connecting = (async () => {
+      client = new MongoClient(process.env.MONGO_URI);
+      await client.connect();
+      database = client.db(databaseName);
+      console.log(`Connected to MongoDB database ${databaseName}`);
+      return database;
+    })().catch((error) => {
+      connecting = null;
+      throw error;
+    });
+  }
+
+  await connecting;
+  return database;
 }
 
 async function getTeamCollection() {
   if (!database) await connectToDatabase();
   return database.collection(collectionName);
+}
+
+async function getFacultyCollection() {
+  if (!database) await connectToDatabase();
+  return database.collection(facultyCollectionName);
 }
 
 async function getAdminCollection() {
@@ -33,9 +55,22 @@ async function getSiteSettingsCollection() {
   return database.collection(siteSettingsCollectionName);
 }
 
+async function getFooterCollection() {
+  if (!database) await connectToDatabase();
+  return database.collection(footerCollectionName);
+}
+
+async function getSessionsCollection() {
+  if (!database) await connectToDatabase();
+  return database.collection(sessionsCollectionName);
+}
+
 module.exports = {
   connectToDatabase,
   getTeamCollection,
+  getFacultyCollection,
   getAdminCollection,
   getSiteSettingsCollection,
+  getFooterCollection,
+  getSessionsCollection,
 };

@@ -1,7 +1,26 @@
+# IMPORTANT: In Netlify UI → Site configuration → Build & deploy →
+# Continuous deployment → Build settings, set "Base directory" to EMPTY
+# (repo root). A UI base of "frontend" breaks backend/functions paths.
 [build]
-  base = "frontend"
-  command = "npm run build"
-  publish = "dist"
+  command = "cd frontend && npm install && npm run build && cd ../backend && npm install --legacy-peer-deps && cd ../netlify/functions && npm install --legacy-peer-deps"
+  publish = "frontend/dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  SECRETS_SCAN_OMIT_PATHS = "prompt.md"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["express", "mongodb", "cors", "dotenv", "serverless-http", "cloudinary", "multer", "multer-storage-cloudinary"]
+  included_files = ["backend/**"]
+
+# API → Netlify Function (must be above the SPA fallback)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
 
 # SPA fallback so React Router routes work on refresh
 [[redirects]]

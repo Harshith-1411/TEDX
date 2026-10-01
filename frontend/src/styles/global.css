@@ -32,7 +32,7 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -43,7 +43,7 @@ body {
   background: var(--off-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 img {
@@ -229,12 +229,12 @@ p {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
 }
 
 .main-content {
   flex: 1;
   min-width: 0;
+  overflow: visible;
 }
 
 @media (min-width: 900px) {

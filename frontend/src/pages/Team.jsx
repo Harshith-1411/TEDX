@@ -26,7 +26,7 @@ function Team() {
           </p>
         </RevealOnScroll>
         <RevealOnScroll delay={80}>
-          <TeamGrid />
+          <TeamGrid allowAdd />
         </RevealOnScroll>
       </div>
     </section>

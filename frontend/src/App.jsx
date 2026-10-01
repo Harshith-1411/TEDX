@@ -27,7 +27,7 @@ function App() {
           <a href="#main" className="skip-link">
             Skip to content
           </a>
-          <Header siteSettings={siteSettings} />
+          <Header siteSettings={siteSettings} onSiteSettingsChange={setSiteSettings} />
           <AdminToolbar />
           <main id="main" className="main-content">
             <Routes>
@@ -40,7 +40,7 @@ function App() {
             </Routes>
           </main>
           <RevealOnScroll as="div" threshold={0.08}>
-            <Footer siteSettings={siteSettings} />
+            <Footer siteSettings={siteSettings} onSiteSettingsChange={setSiteSettings} />
           </RevealOnScroll>
         </div>
       </AdminAuthProvider>

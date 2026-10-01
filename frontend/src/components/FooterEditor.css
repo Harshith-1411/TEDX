@@ -1,25 +1,23 @@
-.member-editor-backdrop {
+.footer-editor-backdrop {
   position: fixed;
   inset: 0;
   z-index: 200;
   display: grid;
   place-items: center;
-  padding: var(--space-sm);
+  padding: calc(var(--header-height) + var(--space-sm)) var(--space-sm) var(--space-sm);
   background: rgba(0, 0, 0, 0.55);
   overflow: auto;
 }
 
-.member-editor {
-  width: min(100%, 640px);
-  max-height: min(92vh, 900px);
-  overflow: auto;
+.footer-editor {
+  width: min(100%, 480px);
   margin: auto;
   background: var(--white);
   border: 1px solid var(--light-gray);
   padding: var(--space-md);
 }
 
-.member-editor-header {
+.footer-editor-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -27,32 +25,27 @@
   margin-bottom: var(--space-md);
 }
 
-.member-editor-header h2 {
+.footer-editor-header h2 {
   font-size: clamp(1.35rem, 2vw, 1.75rem);
 }
 
-.member-editor-close {
+.footer-editor-close {
   font-size: 1.75rem;
   line-height: 1;
   color: var(--dark-gray);
   padding: 0.15rem 0.35rem;
 }
 
-.member-editor-close:hover {
+.footer-editor-close:hover {
   color: var(--red);
 }
 
-.member-editor-form {
-  display: grid;
-  gap: var(--space-md);
-}
-
-.member-editor-grid {
+.footer-editor-form {
   display: grid;
   gap: var(--space-sm);
 }
 
-.member-editor-form label {
+.footer-editor-form label {
   display: grid;
   gap: 0.35rem;
   color: var(--dark-gray);
@@ -62,8 +55,7 @@
   text-transform: uppercase;
 }
 
-.member-editor-form input,
-.member-editor-form textarea {
+.footer-editor-form input {
   width: 100%;
   border: 1px solid #cfcfca;
   background: var(--off-white);
@@ -74,45 +66,31 @@
   text-transform: none;
 }
 
-.member-editor-form textarea {
-  resize: vertical;
-}
-
-.member-editor-form input:focus,
-.member-editor-form textarea:focus {
+.footer-editor-form input:focus {
   outline: 2px solid var(--red);
   outline-offset: 1px;
 }
 
-.member-editor-preview {
-  width: 7rem;
-  height: 7rem;
-  object-fit: cover;
-  background: var(--light-gray);
+.footer-editor-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
-.member-editor-error {
+.footer-editor-error {
   color: var(--red);
   font-size: 0.9rem;
 }
 
-.member-editor-actions {
+.footer-editor-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-sm);
+  margin-top: var(--space-sm);
 }
 
 @media (min-width: 640px) {
-  .member-editor {
+  .footer-editor {
     padding: var(--space-lg);
-  }
-
-  .member-editor-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .member-editor-span {
-    grid-column: 1 / -1;
   }
 }

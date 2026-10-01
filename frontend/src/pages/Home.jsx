@@ -24,6 +24,24 @@ function Home() {
       </RevealOnScroll>
 
       <section
+        id="faculty"
+        className="section faculty-preview"
+        aria-labelledby="faculty-heading"
+      >
+        <div className="container">
+          <RevealOnScroll>
+            <span className="section-label">Faculty</span>
+            <h2 id="faculty-heading" className="team-preview-title">
+              Faculty Coordinators
+            </h2>
+          </RevealOnScroll>
+          <RevealOnScroll delay={80}>
+            <TeamGrid category="faculty" allowAdd />
+          </RevealOnScroll>
+        </div>
+      </section>
+
+      <section
         id="team"
         className="section team-preview"
         aria-labelledby="team-heading"
@@ -36,7 +54,7 @@ function Home() {
             </h2>
           </RevealOnScroll>
           <RevealOnScroll delay={80}>
-            <TeamGrid limit={4} showViewAll />
+            <TeamGrid limit={4} showViewAll category="team" />
           </RevealOnScroll>
         </div>
       </section>
