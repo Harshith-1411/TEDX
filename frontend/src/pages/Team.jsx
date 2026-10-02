@@ -1,35 +1,56 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAdminAuth } from '../context/AdminAuth';
 import TeamGrid from '../components/TeamGrid';
-import RevealOnScroll from '../components/RevealOnScroll';
+import AdminEventTimeModal from '../components/AdminEventTimeModal';
 import './Team.css';
 
 function Team() {
   const { isAdmin } = useAdminAuth();
+  const [timeModalOpen, setTimeModalOpen] = useState(false);
 
-  useEffect(() => {
-    document.title = isAdmin ? 'Team (Admin) | TEDx BIET' : 'Team | TEDx BIET';
-  }, [isAdmin]);
-
+  useEffect(() => { document.title = 'Team | TEDx BIET'; }, []);
   return (
-    <section className="section team-page" aria-labelledby="team-page-heading">
-      <div className="container">
-        <RevealOnScroll>
-          <span className="section-label">{isAdmin ? 'Admin · TEDx BIET' : 'TEDx BIET'}</span>
-          <h1 id="team-page-heading" className="team-page-title">
-            The Team
-          </h1>
-          <p className="team-page-intro">
-            {isAdmin
-              ? 'Edit member details, change the slug, or upload photos. Changes save to the database.'
-              : 'Meet the people organizing TEDx BIET.'}
-          </p>
-        </RevealOnScroll>
-        <RevealOnScroll delay={80}>
-          <TeamGrid allowAdd />
-        </RevealOnScroll>
+    <div className="team-page">
+      <div className="team-hero">
+        <div className="eyebrow-tag mono" style={{marginBottom:"16px"}}>The organizing team</div>
+        <h1 className="team-hero-title">TEAM &amp; <span style={{color:"var(--red)"}}>x</span> ROLES</h1>
+        <p className="team-hero-sub">Every department, every lead, and every responsibility behind TEDxBIET 2026.</p>
       </div>
-    </section>
+      <div className="team-content">
+        {isAdmin && (
+          <div className="glass-card" style={{ maxWidth: "1120px", marginBottom: "2.4rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+            <div>
+              <div className="eyebrow-tag mono" style={{ marginBottom: "6px" }}>Admin Mode &middot; Event Schedule</div>
+              <h3 style={{ margin: 0, fontSize: "1.2rem", color: "#fff" }}>Event Date &amp; Countdown Target</h3>
+              <p style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--grey)" }}>
+                Configured in MongoDB. Drives the live fracture clock across the entire site.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="btn btn-fill mono"
+              style={{ fontSize: "11.5px", padding: "8px 18px" }}
+              onClick={() => setTimeModalOpen(true)}
+            >
+              ⏱️ Change Event Time
+            </button>
+          </div>
+        )}
+        <div className="glass-card" style={{maxWidth:"1120px"}}>
+          <div className="eyebrow-tag mono">Faculty Coordinators</div>
+          <TeamGrid category="faculty" allowAdd />
+        </div>
+        <div className="glass-card" style={{maxWidth:"1120px",marginTop:"3rem"}}>
+          <div className="eyebrow-tag mono">All Team Members</div>
+          <TeamGrid category="team" allowAdd />
+        </div>
+      </div>
+
+      <AdminEventTimeModal
+        open={timeModalOpen}
+        onClose={() => setTimeModalOpen(false)}
+      />
+    </div>
   );
 }
 

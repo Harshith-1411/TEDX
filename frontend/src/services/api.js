@@ -86,6 +86,10 @@ export function getFacultyMembers() {
   return request('/api/faculty');
 }
 
+export function getSpeakers() {
+  return request('/api/speakers');
+}
+
 export function getSiteSettings() {
   return request('/api/site-settings');
 }
@@ -160,6 +164,33 @@ export function deleteAdminFaculty(token, id) {
   });
 }
 
+export function getAdminSpeakers(token) {
+  return adminRequest('/api/admin/speakers', { token });
+}
+
+export function createAdminSpeaker(token, speaker) {
+  return adminRequest('/api/admin/speakers', {
+    token,
+    method: 'POST',
+    body: buildMemberFormData(speaker),
+  });
+}
+
+export function updateAdminSpeaker(token, id, speaker) {
+  return adminRequest(`/api/admin/speakers/${id}`, {
+    token,
+    method: 'PUT',
+    body: buildMemberFormData(speaker),
+  });
+}
+
+export function deleteAdminSpeaker(token, id) {
+  return adminRequest(`/api/admin/speakers/${id}`, {
+    token,
+    method: 'DELETE',
+  });
+}
+
 export function logoutAdmin(token) {
   return adminRequest('/api/admin/logout', { token, method: 'POST' });
 }
@@ -177,20 +208,24 @@ export function updateAdminFooter(token, footer) {
   });
 }
 
-/**
- * Upload a new header or footer logo.
- * @param {string} token  Admin auth token
- * @param {'header'|'footer'} type  Which logo to replace
- * @param {File} file  The image file to upload
- * @returns {Promise<object>}  Updated site settings object
- */
-export function updateAdminLogo(token, type, file) {
+export function updateAdminLogo(token, type, file, theme = '') {
   const fd = new FormData();
   fd.append('logo', file);
-  return adminRequest(`/api/admin/logos/${type}`, {
+  if (theme) fd.append('theme', theme);
+  const q = theme ? `?theme=${encodeURIComponent(theme)}` : '';
+  return adminRequest(`/api/admin/logos/${type}${q}`, {
     token,
     method: 'PUT',
     body: fd,
+  });
+}
+
+export function updateAdminEventTime(token, eventTimeData) {
+  return adminRequest('/api/admin/event-time', {
+    token,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(eventTimeData),
   });
 }
 

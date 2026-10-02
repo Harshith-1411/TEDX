@@ -8,6 +8,7 @@
 
 [build.environment]
   SECRETS_SCAN_OMIT_PATHS = "prompt.md"
+  SECRETS_SCAN_OMIT_KEYS = "CLOUDINARY_CLOUD_NAME"
 
 [functions]
   directory = "netlify/functions"

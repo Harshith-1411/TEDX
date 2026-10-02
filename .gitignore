@@ -16,3 +16,6 @@ coverage/
 
 # Netlify Functions local install
 netlify/functions/node_modules/
+
+# Temporary files
+temp_chunks/

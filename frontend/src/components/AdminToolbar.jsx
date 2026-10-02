@@ -16,22 +16,39 @@ function AdminToolbar({ statusMessage = '' }) {
           {statusMessage ? <span className="admin-toolbar-status"> · {statusMessage}</span> : null}
         </p>
         <div className="admin-toolbar-actions">
-          <Link to="/team" className="btn btn-ghost admin-toolbar-btn">
-            View team
-          </Link>
           <button
             type="button"
             className="btn btn-ghost admin-toolbar-btn"
-            onClick={() => navigate('/?addFaculty=1#faculty')}
+            onClick={() => {
+              if (window.location.pathname !== '/') {
+                navigate('/');
+                setTimeout(() => {
+                  document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' });
+                }, 150);
+              } else {
+                document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
           >
-            Add faculty
+            Team section
           </button>
           <button
             type="button"
             className="btn btn-primary admin-toolbar-btn"
-            onClick={() => navigate('/team?add=1')}
+            onClick={() => {
+              if (window.location.pathname !== '/') {
+                navigate('/');
+                setTimeout(() => {
+                  document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' });
+                  window.dispatchEvent(new CustomEvent('admin-add-member'));
+                }, 200);
+              } else {
+                document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' });
+                window.dispatchEvent(new CustomEvent('admin-add-member'));
+              }
+            }}
           >
-            Add member
+            + Add member
           </button>
           <button type="button" className="btn btn-ghost admin-toolbar-btn" onClick={() => logout()}>
             Sign out

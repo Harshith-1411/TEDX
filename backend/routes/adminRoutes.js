@@ -12,11 +12,18 @@ const {
   updateFaculty,
   deleteFaculty,
 } = require('../controllers/adminController');
+const {
+  getAdminSpeakers,
+  createSpeaker,
+  updateSpeaker,
+  deleteSpeaker,
+} = require('../controllers/speakerController');
 const { updateFooter } = require('../controllers/footerController');
-const { updateLogo } = require('../controllers/siteSettingsController');
+const { updateLogo, updateEventTime } = require('../controllers/siteSettingsController');
 const {
   teamUpload,
   facultyUpload,
+  speakerUpload,
   headerLogoUpload,
   footerLogoUpload,
 } = require('../uploadMiddleware');
@@ -39,6 +46,12 @@ router.post('/faculty', facultyUpload.single('image'), createFaculty);
 router.put('/faculty/:id', facultyUpload.single('image'), updateFaculty);
 router.delete('/faculty/:id', deleteFaculty);
 
+// Speakers
+router.get('/speakers', getAdminSpeakers);
+router.post('/speakers', speakerUpload.single('image'), createSpeaker);
+router.put('/speakers/:id', speakerUpload.single('image'), updateSpeaker);
+router.delete('/speakers/:id', deleteSpeaker);
+
 // Footer social links
 router.put('/footer', updateFooter);
 
@@ -54,5 +67,9 @@ router.put('/logos/footer', footerLogoUpload.single('logo'), (req, res, next) =>
   req.params.type = 'footer';
   next();
 }, updateLogo);
+
+// Event date & time management
+// PUT /api/admin/event-time
+router.put('/event-time', updateEventTime);
 
 module.exports = router;

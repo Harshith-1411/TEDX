@@ -4,10 +4,12 @@ const express = require('express');
 const cors = require('cors');
 const teamRoutes = require('./routes/teamRoutes');
 const facultyRoutes = require('./routes/facultyRoutes');
+const speakerRoutes = require('./routes/speakerRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const siteSettingsRoutes = require('./routes/siteSettingsRoutes');
 const footerRoutes = require('./routes/footerRoutes');
 const { connectToDatabase } = require('./db');
+const { seedSpeakersIfEmpty } = require('./controllers/speakerController');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -26,7 +28,12 @@ const allowedOrigins = [
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.netlify.app') ||
+        /\.netlify\.app$/.test(origin)
+      ) {
         callback(null, true);
         return;
       }
@@ -46,6 +53,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/team', teamRoutes);
 app.use('/api/faculty', facultyRoutes);
+app.use('/api/speakers', speakerRoutes);
 app.use('/api/site-settings', siteSettingsRoutes);
 app.use('/api/footer', footerRoutes);
 app.use('/api/admin', adminRoutes);
@@ -56,6 +64,7 @@ app.use((req, res) => {
 
 async function ensureDb() {
   await connectToDatabase();
+  await seedSpeakersIfEmpty();
 }
 
 async function startServer() {

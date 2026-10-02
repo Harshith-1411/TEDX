@@ -1,0 +1,99 @@
+/* CampusMap.css - Styled Leaflet map for TEDx */
+.campus-map-wrapper {
+  width: 100%;
+  height: 220px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: rgba(4, 4, 6, 0.6);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.campus-leaflet-container {
+  width: 100%;
+  flex: 1;
+  min-height: 180px;
+  background: #111;
+  filter: contrast(1.05) brightness(0.9);
+}
+
+.campus-map-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: rgba(10, 10, 14, 0.95);
+  border-top: 1px solid var(--glass-border);
+  font-size: 11px;
+  color: var(--grey);
+}
+
+.campus-map-bar a {
+  color: var(--red);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.campus-map-bar a:hover {
+  color: var(--red-glow);
+  text-decoration: underline;
+}
+
+/* Pulsing TEDx Pin */
+.tedx-leaflet-marker {
+  background: none;
+  border: none;
+}
+
+.tedx-map-pin {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+}
+
+.tedx-pin-core {
+  width: 12px;
+  height: 12px;
+  background: var(--red, #e62b1e);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--red, #e62b1e);
+  position: relative;
+  z-index: 2;
+  border: 2px solid #fff;
+}
+
+.tedx-pin-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(230, 43, 30, 0.4);
+  animation: tedxPinPulse 2s ease-out infinite;
+}
+
+@keyframes tedxPinPulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Leaflet Popup Tweaks */
+.tedx-map-popup {
+  font-family: var(--font-body, system-ui, sans-serif);
+  line-height: 1.4;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}

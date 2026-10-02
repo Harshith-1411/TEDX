@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ImageCropper from './ImageCropper';
 import './MemberEditor.css';
@@ -26,6 +26,7 @@ function MemberEditor({
   onSave,
 }) {
   const titleId = useId();
+  const photoInputRef = useRef(null);
   const [form, setForm] = useState(emptyMember);
   const [localError, setLocalError] = useState('');
   // cropSrc is a temporary blob URL used only for the cropper preview
@@ -225,29 +226,57 @@ function MemberEditor({
                   required
                 />
               </label>
-              <label className="member-editor-span">
-                Photo
-                <input type="file" accept="image/*" onChange={handleImage} />
-              </label>
             </div>
 
-            {thumbnailSrc && (
-              <div className="member-editor-preview-row">
-                <img className="member-editor-preview" src={thumbnailSrc} alt="" />
-                <button
-                  type="button"
-                  className="btn btn-ghost member-editor-remove-photo"
-                  onClick={() => {
-                    setImageFile(null);
-                    setPreviewUrl('');
-                    setForm((curr) => ({ ...curr, image: '' }));
-                  }}
-                  disabled={saving}
-                >
-                  Remove photo
-                </button>
+            <div className="member-editor-photo-section">
+              <div className="member-editor-photo-card">
+                <div className="member-editor-avatar-box">
+                  {thumbnailSrc ? (
+                    <img className="member-editor-preview" src={thumbnailSrc} alt={form.name} />
+                  ) : (
+                    <div className="member-editor-no-avatar mono">
+                      {(form.name || 'T').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="member-editor-photo-controls">
+                  <span className="mono" style={{ fontSize: '11px', color: 'var(--grey)' }}>
+                    {thumbnailSrc ? 'Current photo active. Click to replace.' : 'No photo uploaded yet.'}
+                  </span>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className="btn btn-ghost member-editor-change-btn mono"
+                      onClick={() => photoInputRef.current?.click()}
+                      disabled={saving}
+                    >
+                      📷 {thumbnailSrc ? 'Change / Crop Photo' : 'Upload & Crop Photo'}
+                    </button>
+                    {thumbnailSrc && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost member-editor-remove-photo mono"
+                        onClick={() => {
+                          setImageFile(null);
+                          setPreviewUrl('');
+                          setForm((curr) => ({ ...curr, image: '' }));
+                        }}
+                        disabled={saving}
+                      >
+                        🗑️ Remove Photo
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleImage}
+                  />
+                </div>
               </div>
-            )}
+            </div>
 
             {displayError && (
               <p className="member-editor-error" role="alert">

@@ -14,9 +14,14 @@ function createUpload(folder, fixedPublicId = null) {
   const storage = new CloudinaryStorage({
     cloudinary,
     params: async (req) => {
-      // Use slug from the request body as the stable public_id.
-      // For logos, use the pre-defined stable ID instead.
-      const publicId = fixedPublicId || (req.body && req.body.slug) || undefined;
+      let publicId;
+      if (typeof fixedPublicId === 'function') {
+        publicId = fixedPublicId(req);
+      } else if (fixedPublicId) {
+        publicId = fixedPublicId;
+      } else {
+        publicId = (req.body && req.body.slug) || undefined;
+      }
 
       return {
         folder,
@@ -48,9 +53,16 @@ function createUpload(folder, fixedPublicId = null) {
 
 const teamUpload = createUpload('tedx-team-members');
 const facultyUpload = createUpload('tedx-faculty-coordinators');
+const speakerUpload = createUpload('tedx-speakers');
 
-// Logos use stable, fixed public_ids so they are replaced rather than duplicated.
-const headerLogoUpload = createUpload('tedx-website/logos', 'header');
-const footerLogoUpload = createUpload('tedx-website/logos', 'footer');
+// Logos use stable, theme-aware public_ids so each theme has its own file in Cloudinary.
+const headerLogoUpload = createUpload('tedx-website/logos', (req) => {
+  const theme = (req.query?.theme || req.body?.theme || '').toLowerCase().trim();
+  return theme && theme !== 'red' ? `header_${theme}` : 'header';
+});
+const footerLogoUpload = createUpload('tedx-website/logos', (req) => {
+  const theme = (req.query?.theme || req.body?.theme || '').toLowerCase().trim();
+  return theme && theme !== 'red' ? `footer_${theme}` : 'footer';
+});
 
-module.exports = { teamUpload, facultyUpload, headerLogoUpload, footerLogoUpload };
+module.exports = { teamUpload, facultyUpload, speakerUpload, headerLogoUpload, footerLogoUpload };

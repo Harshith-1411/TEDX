@@ -1,79 +1,114 @@
+﻿/* Admin.css — TEDx theme */
+.admin-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 2rem 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-login-card {
+  max-width: 460px;
+  width: 100%;
+}
+
+.admin-login-title {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+  color: var(--white);
+}
+
+.admin-login-desc {
+  font-size: 0.95rem;
+  color: var(--soft);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.admin-form { display: flex; flex-direction: column; gap: 1.2rem; }
+
+.admin-field { display: flex; flex-direction: column; gap: 6px; }
+
+.admin-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey);
+  font-weight: 500;
+}
+
+.admin-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  color: var(--white);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  width: 100%;
+}
+.admin-input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,43,30,0.14); }
+.admin-input::placeholder { color: var(--grey); }
+
+.admin-password-wrap { position: relative; }
+.admin-password-wrap .admin-input { padding-right: 48px; }
+
+.admin-pw-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--grey);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.admin-pw-toggle:hover { color: var(--white); }
+
+.admin-error {
+  color: var(--red-glow);
+  font-size: 13px;
+  padding: 10px 14px;
+  border: 1px solid rgba(230,43,30,0.3);
+  border-radius: 8px;
+  background: rgba(230,43,30,0.08);
+}
+
+.admin-submit { width: 100%; justify-content: center; margin-top: 0.5rem; }
+
+/* Admin Dashboard */
 .admin-page {
-  min-height: calc(100vh - var(--header-height));
-  background: #efeee9;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 2rem 4rem;
+  position: relative;
+  z-index: 1;
 }
 
 .admin-narrow {
   max-width: 560px;
-}
-
-.admin-title {
-  max-width: 760px;
-  margin-bottom: var(--space-sm);
-}
-
-.admin-lede {
-  margin-bottom: var(--space-lg);
-}
-
-.admin-form {
-  display: grid;
-  gap: var(--space-sm);
-  background: var(--white);
-  border: 1px solid var(--light-gray);
-  padding: var(--space-lg);
-}
-
-.admin-form label {
-  display: grid;
-  gap: 0.35rem;
-  color: var(--dark-gray);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.admin-form input {
   width: 100%;
-  border: 1px solid #cfcfca;
-  background: var(--off-white);
-  color: var(--black);
-  padding: 0.75rem;
-  font: inherit;
-  letter-spacing: 0;
-  text-transform: none;
 }
 
-.admin-password-field {
-  position: relative;
-  display: block;
-}
+/* Legacy compat */
+.admin-title { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 700; color: var(--white); margin-bottom: 12px; }
+.admin-lede { font-size: 0.95rem; color: var(--soft); line-height: 1.6; margin-bottom: 2rem; }
 
-.admin-password-field input {
-  padding-right: 3rem;
-}
+.section { padding: 120px 2rem 4rem; position: relative; z-index: 1; }
+.container { width: min(100% - 3rem, 1180px); margin-inline: auto; }
+.section-label { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 0.5rem; }
 
-.password-toggle {
-  position: absolute;
-  top: 50%;
-  right: 0.7rem;
-  transform: translateY(-50%);
-  color: var(--dark-gray);
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.password-toggle:hover {
-  color: var(--red);
-}
-
-.admin-form input:focus {
-  outline: 2px solid var(--red);
-  outline-offset: 1px;
-}
-
-.admin-error {
-  font-size: 0.9rem;
-  color: var(--red);
-}
+.btn.btn-primary { background: var(--red); color: #fff; border-radius: 100px; padding: 14px 28px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+.btn.btn-primary:hover { background: #c41f14; }
+.btn.btn-ghost { color: var(--grey); border-bottom: 1px solid rgba(255,255,255,0.2); padding: 0.25rem 0; font-size: 13px; }
+.btn.btn-ghost:hover { color: var(--red); }

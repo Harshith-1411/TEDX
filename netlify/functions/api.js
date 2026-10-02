@@ -1,12 +1,45 @@
 const path = require('path');
 const serverless = require('serverless-http');
 
-// Resolve backend deps from backend/node_modules during Netlify builds
-module.paths.unshift(path.join(__dirname, '../../backend/node_modules'));
+// Resolve backend deps from candidate locations during Netlify runtime
+const candidateModulePaths = [
+  path.join(__dirname, '../../backend/node_modules'),
+  path.join(__dirname, './backend/node_modules'),
+  path.join(process.cwd(), 'backend/node_modules'),
+  path.join(process.cwd(), 'node_modules'),
+];
+for (const p of candidateModulePaths) {
+  if (!module.paths.includes(p)) {
+    module.paths.unshift(p);
+  }
+}
 
-const { app, ensureDb } = require('../../backend/server');
+// Resilient backend server resolution across local & bundled Netlify function environments
+let backendModule;
+const candidateServerPaths = [
+  '../../backend/server',
+  './backend/server',
+  path.join(process.cwd(), 'backend/server'),
+];
 
-const expressHandler = serverless(app);
+for (const candidate of candidateServerPaths) {
+  try {
+    backendModule = require(candidate);
+    break;
+  } catch {
+    // Continue trying other candidates
+  }
+}
+
+if (!backendModule) {
+  backendModule = require('../../backend/server');
+}
+
+const { app, ensureDb } = backendModule;
+
+const expressHandler = serverless(app, {
+  binary: ['image/*', 'application/octet-stream', 'multipart/form-data'],
+});
 
 function normalizeApiPath(event) {
   const nextEvent = { ...event };

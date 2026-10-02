@@ -198,8 +198,9 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="image-cropper-header">
-          <h2 id={titleId}>Crop photo</h2>
-          <p className="image-cropper-hint">Drag to reposition. Use the corner to resize.</p>
+          <span className="image-cropper-tag">TEDx &middot; Avatar Cropper</span>
+          <h2 id={titleId}>Adjust &amp; Crop Photo</h2>
+          <p className="image-cropper-hint">Drag the frame to position. Pull the corner handle to scale.</p>
         </div>
 
         <div className="image-cropper-frame" ref={frameRef}>
@@ -235,6 +236,7 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
             >
               <span
                 className="image-cropper-handle"
+                title="Drag to resize"
                 onMouseDown={(event) => startDrag(event, 'resize')}
                 onTouchStart={(event) => startDrag(event, 'resize')}
               />
@@ -247,7 +249,7 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
             Cancel
           </button>
           <button type="button" className="btn btn-primary" onClick={handleConfirm}>
-            Use cropped photo
+            Apply Cropped Photo
           </button>
         </div>
       </div>

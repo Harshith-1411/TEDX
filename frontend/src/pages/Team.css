@@ -1,14 +1,41 @@
+﻿/* Team.css */
 .team-page {
-  background: var(--off-white);
-  padding-top: var(--space-xl);
+  min-height: 100vh;
+  padding: 120px 6vw 8vh;
+  position: relative;
+  z-index: 1;
 }
 
-.team-page-title {
-  font-size: clamp(2.25rem, 4.5vw + 0.5rem, 3.75rem);
-  margin-bottom: var(--space-md);
+.team-hero {
+  text-align: center;
+  margin-bottom: 4rem;
 }
 
-.team-page-intro {
-  max-width: 36rem;
-  margin-bottom: var(--space-xl);
+.team-hero-title {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -2px;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+
+.team-hero-sub {
+  font-size: 1.05rem;
+  color: var(--soft);
+  line-height: 1.7;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.team-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .team-page { padding: 104px 1rem 6vh; }
+  .team-hero { margin-bottom: 2.5rem; }
+  .team-hero-title { font-size: clamp(2.15rem, 11vw, 3rem); }
+  .team-hero-sub { font-size: 0.95rem; }
 }

@@ -1,72 +1,25 @@
-import { Link } from 'react-router-dom';
-import EditableImage from './EditableImage';
+﻿import { Link } from 'react-router-dom';
 import './TeamCard.css';
 
-function TeamCard({
-  member,
-  isAdmin = false,
-  isFaculty = false,
-  uploadingId = null,
-  onEdit,
-  onDelete,
-  onUploadPhoto,
-  onRemovePhoto,
-}) {
-  // member.image is now a Cloudinary URL (or empty string) included directly
-  // in the API response. No separate image fetch needed.
-  const uploading = uploadingId === member._id;
-
+function TeamCard({ member, onEdit, isAdmin }) {
+  const initials = member.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   return (
-    <article className={`team-card${isAdmin ? ' team-card-admin' : ''}`}>
-      <Link to={`/${member.slug}`} className="team-card-link">
-        <EditableImage
-          src={member.image}
-          alt={member.name}
-          className="team-card-image"
-          wrapClassName="team-card-image-wrap"
-          canEdit={isAdmin}
-          uploading={uploading}
-          onUpload={
-            isAdmin
-              ? (imageFile) => onUploadPhoto?.(member, imageFile)
-              : undefined
-          }
-          onRemove={
-            isAdmin
-              ? () => onRemovePhoto?.(member)
-              : undefined
-          }
-        />
-        <div className="team-card-body">
-          <h3 className="team-card-name">{member.name}</h3>
-          <p className="team-card-role">{member.role}</p>
-          {!isFaculty && member.team ? (
-            <p className="team-card-team">{member.team}</p>
-          ) : null}
-          <span className="team-card-cta">
-            View Profile <span aria-hidden="true">→</span>
-          </span>
-        </div>
+    <article className="team-card">
+      <div className="team-card-image-wrap">
+        {member.image
+          ? <img src={member.image} alt={member.name} className="team-card-image" loading="lazy" />
+          : <div className="team-card-initials">{initials}</div>}
+        {isAdmin && onEdit && (
+          <button type="button" className="team-card-edit-btn" onClick={(e) => { e.preventDefault(); onEdit(member); }}>
+            Edit
+          </button>
+        )}
+      </div>
+      <Link to={`/${member.slug}`} className="team-card-body" style={{display:"block",textDecoration:"none"}}>
+        <div className="team-card-name">{member.name}</div>
+        <div className="team-card-role">{member.role}</div>
+        {member.team && <div className="team-card-team">{member.team}</div>}
       </Link>
-
-      {isAdmin && (
-        <div className="team-card-admin-actions">
-          <button
-            type="button"
-            className="btn btn-ghost team-card-admin-btn"
-            onClick={() => onEdit?.(member)}
-          >
-            Edit details
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost team-card-admin-btn team-card-admin-delete"
-            onClick={() => onDelete?.(member)}
-          >
-            Remove
-          </button>
-        </div>
-      )}
     </article>
   );
 }

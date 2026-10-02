@@ -1,7 +1,11 @@
 const { getSiteSettingsCollection } = require('../db');
-const cloudinary = require('../cloudinary');
 
 const SETTINGS_ID = 'branding';
+
+// Default event date: 5 October 2026 09:00:00 IST
+const DEFAULT_EVENT_DATE = '2026-10-05T09:00:00+05:30';
+const DEFAULT_EVENT_LABEL = '5 October 2026';
+const DEFAULT_TIME_LABEL = '09:00 AM IST';
 
 async function getSiteSettings(req, res) {
   try {
@@ -10,7 +14,15 @@ async function getSiteSettings(req, res) {
       { projection: { _id: 0 } }
     );
 
-    res.json(settings || {});
+    const result = {
+      eventDate: DEFAULT_EVENT_DATE,
+      eventDateLabel: DEFAULT_EVENT_LABEL,
+      eventTimeLabel: DEFAULT_TIME_LABEL,
+      themeLogos: {},
+      ...(settings || {}),
+    };
+
+    res.json(result);
   } catch (error) {
     console.error('Unable to load site settings:', error);
     res.status(500).json({ message: 'Unable to load site settings' });
@@ -19,9 +31,9 @@ async function getSiteSettings(req, res) {
 
 /**
  * Upload a new header or footer logo.
- * The logo type ('header' or 'footer') is determined by req.params.type.
- * The file is already uploaded to Cloudinary by the multer middleware;
- * req.file.path is the secure_url and req.file.filename is the public_id.
+ * Supports theme-specific logos via `theme` query or body parameter:
+ * e.g. PUT /api/admin/logos/header?theme=matrix
+ * If theme is specified, saves to `themeLogos.<theme>` so each theme retains its own logo!
  */
 async function updateLogo(req, res) {
   try {
@@ -34,34 +46,78 @@ async function updateLogo(req, res) {
       return res.status(400).json({ message: 'No image file provided' });
     }
 
-    const logoUrl = req.file.path;        // Cloudinary secure_url
+    const theme = (req.query.theme || req.body.theme || '').toLowerCase().trim();
+    const logoUrl = req.file.path; // Cloudinary secure_url
     const logoPublicId = req.file.filename; // Cloudinary public_id
 
-    const field = type === 'header' ? 'headerLogo' : 'footerLogo';
-    const publicIdField = type === 'header' ? 'headerLogoPublicId' : 'footerLogoPublicId';
-
     const collection = await getSiteSettingsCollection();
+    const updateFields = {};
 
-    // Fetch existing public_id for cleanup (same stable ID will be overwritten
-    // by Cloudinary, but keep the record consistent)
-    const existing = await collection.findOne(
+    if (theme && theme !== 'red') {
+      // Save logo specifically for this theme ONLY - never touch global headerLogo!
+      updateFields[`themeLogos.${theme}`] = logoUrl;
+      updateFields[`themeLogosPublicId.${theme}`] = logoPublicId;
+    } else if (theme === 'red') {
+      updateFields['themeLogos.red'] = logoUrl;
+      updateFields['themeLogosPublicId.red'] = logoPublicId;
+      updateFields[type === 'header' ? 'headerLogo' : 'footerLogo'] = logoUrl;
+      updateFields[type === 'header' ? 'headerLogoPublicId' : 'footerLogoPublicId'] = logoPublicId;
+    } else {
+      const field = type === 'header' ? 'headerLogo' : 'footerLogo';
+      const publicIdField = type === 'header' ? 'headerLogoPublicId' : 'footerLogoPublicId';
+      updateFields[field] = logoUrl;
+      updateFields[publicIdField] = logoPublicId;
+    }
+
+    await collection.updateOne(
       { _id: SETTINGS_ID },
-      { projection: { [publicIdField]: 1 } }
+      { $set: updateFields },
+      { upsert: true }
     );
 
-    // Update the settings document (upsert in case it doesn't exist yet)
+    const updated = await collection.findOne(
+      { _id: SETTINGS_ID },
+      { projection: { _id: 0 } }
+    );
+
+    res.json({
+      eventDate: DEFAULT_EVENT_DATE,
+      eventDateLabel: DEFAULT_EVENT_LABEL,
+      eventTimeLabel: DEFAULT_TIME_LABEL,
+      themeLogos: {},
+      ...(updated || {}),
+    });
+  } catch (error) {
+    console.error('Unable to update logo:', error);
+    res.status(500).json({ message: 'Unable to update logo' });
+  }
+}
+
+/**
+ * Update event date and time in MongoDB
+ * PUT /api/admin/event-time
+ */
+async function updateEventTime(req, res) {
+  try {
+    const { eventDate, eventDateLabel, eventTimeLabel } = req.body;
+    if (!eventDate) {
+      return res.status(400).json({ message: 'eventDate is required' });
+    }
+
+    const collection = await getSiteSettingsCollection();
     await collection.updateOne(
       { _id: SETTINGS_ID },
       {
         $set: {
-          [field]: logoUrl,
-          [publicIdField]: logoPublicId,
+          eventDate,
+          eventDateLabel: eventDateLabel || DEFAULT_EVENT_LABEL,
+          eventTimeLabel: eventTimeLabel || DEFAULT_TIME_LABEL,
+          updatedAt: new Date(),
         },
       },
       { upsert: true }
     );
 
-    // Return the updated settings (without _id)
     const updated = await collection.findOne(
       { _id: SETTINGS_ID },
       { projection: { _id: 0 } }
@@ -69,9 +125,9 @@ async function updateLogo(req, res) {
 
     res.json(updated);
   } catch (error) {
-    console.error('Unable to update logo:', error);
-    res.status(500).json({ message: 'Unable to update logo' });
+    console.error('Unable to update event time:', error);
+    res.status(500).json({ message: 'Unable to update event time' });
   }
 }
 
-module.exports = { getSiteSettings, updateLogo };
+module.exports = { getSiteSettings, updateLogo, updateEventTime };

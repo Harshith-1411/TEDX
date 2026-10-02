@@ -7,6 +7,7 @@ const adminCollectionName = 'Admin_Credentials';
 const siteSettingsCollectionName = 'Site_Settings';
 const footerCollectionName = 'Footer';
 const sessionsCollectionName = 'Admin_Sessions';
+const speakersCollectionName = 'Speakers';
 let client;
 let database;
 let connecting;
@@ -65,6 +66,11 @@ async function getSessionsCollection() {
   return database.collection(sessionsCollectionName);
 }
 
+async function getSpeakersCollection() {
+  if (!database) await connectToDatabase();
+  return database.collection(speakersCollectionName);
+}
+
 module.exports = {
   connectToDatabase,
   getTeamCollection,
@@ -73,4 +79,5 @@ module.exports = {
   getSiteSettingsCollection,
   getFooterCollection,
   getSessionsCollection,
+  getSpeakersCollection,
 };

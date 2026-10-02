@@ -1,25 +1,32 @@
-.not-found {
-  min-height: 70vh;
+﻿/* NotFound.css */
+.not-found-page {
+  min-height: 100vh;
   display: flex;
   align-items: center;
-  background: var(--off-white);
+  justify-content: center;
+  padding: 120px 2rem 4rem;
+  position: relative;
+  z-index: 1;
 }
 
-.not-found-inner {
-  max-width: 32rem;
+.not-found-card {
+  max-width: 520px;
+  text-align: center;
 }
 
-.not-found-code {
-  font-size: clamp(4rem, 12vw, 8rem);
-  font-weight: 800;
-  color: var(--red);
+.not-found-title {
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 700;
+  letter-spacing: -2px;
   line-height: 1;
-  letter-spacing: -0.04em;
-  margin-bottom: var(--space-sm);
+  color: var(--white);
+  margin-bottom: 20px;
 }
 
-.not-found h1 {
-  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
-  margin-bottom: var(--space-lg);
-  color: var(--black);
+.not-found-title span { color: var(--red); }
+
+.not-found-desc {
+  font-size: 1rem;
+  color: var(--soft);
+  line-height: 1.7;
 }
