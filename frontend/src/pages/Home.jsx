@@ -8,16 +8,21 @@ import {
   updateAdminMember,
   deleteAdminMember,
   getFacultyMembers,
+  getAdminFaculty,
   createAdminFaculty,
   updateAdminFaculty,
   deleteAdminFaculty,
   getSpeakers,
+  createAdminSpeaker,
   updateAdminSpeaker,
+  deleteAdminSpeaker,
   getSiteSettings,
   updateAdminEventTime,
 } from "../services/api";
 import MemberEditor from "../components/MemberEditor";
+import SpeakerEditor from "../components/SpeakerEditor";
 import CampusMap from "../components/CampusMap";
+import ImageCropper from "../components/ImageCropper";
 import "./Home.css";
 
 const TARGET = new Date("2026-10-05T09:00:00+05:30").getTime();
@@ -358,28 +363,55 @@ const getInitials = (n) => {
   return (w.length ? w : String(n).split(/\s+/)).slice(0, 2).map(x => x[0]).join('').toUpperCase();
 };
 
-function SpeakerCard({ speaker, idx, isAdmin, onUploadPhoto }) {
+function SpeakerCard({
+  speaker,
+  idx,
+  isAdmin,
+  onUploadPhoto,
+  onEditSpeaker,
+  onDeleteSpeaker,
+}) {
   const [flipped, setFlipped] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [cropSrc, setCropSrc] = useState("");
   const fileInputRef = useRef(null);
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file || !onUploadPhoto) return;
+    if (!file.type.startsWith("image/")) return;
+
+    const objectUrl = URL.createObjectURL(file);
+    setCropSrc(objectUrl);
+  };
+
+  const handleCropConfirm = async (croppedFile) => {
+    URL.revokeObjectURL(cropSrc);
+    setCropSrc("");
     setUploading(true);
     try {
-      await onUploadPhoto(speaker._id, file);
+      await onUploadPhoto(speaker, croppedFile);
     } finally {
       setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  };
+
+  const handleCropCancel = () => {
+    URL.revokeObjectURL(cropSrc);
+    setCropSrc("");
+  };
+
+  const handleCardClick = (e) => {
+    if (e.target.closest("button") || e.target.closest("input") || e.target.closest(".speaker-admin-actions")) return;
+    setFlipped((f) => !f);
   };
 
   return (
     <div
       className={`speaker-card-flip ${flipped ? "flipped" : ""}`}
-      onClick={() => setFlipped((f) => !f)}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setFlipped((f) => !f)}
+      onClick={handleCardClick}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && !e.target.closest("button") && setFlipped((f) => !f)}
       tabIndex={0}
       role="button"
       aria-pressed={flipped}
@@ -393,29 +425,54 @@ function SpeakerCard({ speaker, idx, isAdmin, onUploadPhoto }) {
             ) : (
               <ConstellationSVG idx={idx} />
             )}
+            <span className="sc-hint mono">Tap to flip</span>
             {isAdmin && (
-              <button
-                type="button"
-                className="speaker-upload-trigger"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
-                }}
-                disabled={uploading}
-                title="Upload Speaker Photo"
-              >
-                {uploading ? "..." : "Photo +"}
-              </button>
+              <div className="speaker-admin-actions" onClick={(e) => e.stopPropagation()}>
+                <button
+                  type="button"
+                  className="speaker-upload-trigger"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  title="Upload & Crop Speaker Photo (3:4)"
+                >
+                  {uploading ? "Uploading..." : "📷 Change Photo"}
+                </button>
+                {onEditSpeaker && (
+                  <button
+                    type="button"
+                    className="speaker-action-btn"
+                    onClick={() => onEditSpeaker(speaker)}
+                    disabled={uploading}
+                    title="Edit Speaker Details"
+                  >
+                    ✏️
+                  </button>
+                )}
+                {onDeleteSpeaker && (
+                  <button
+                    type="button"
+                    className="speaker-action-btn del"
+                    onClick={() => {
+                      if (window.confirm(`Are you sure you want to remove speaker "${speaker.name}"?`)) {
+                        onDeleteSpeaker(speaker);
+                      }
+                    }}
+                    disabled={uploading}
+                    title="Remove Speaker"
+                  >
+                    🗑️
+                  </button>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+              </div>
             )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
           </div>
-          <span className="sc-hint mono">Tap to flip</span>
           <div className="speaker-info-block">
             <div className="speaker-role mono">{speaker.role || "Inauguration guest"}</div>
             <h4>{speaker.name}</h4>
@@ -428,6 +485,15 @@ function SpeakerCard({ speaker, idx, isAdmin, onUploadPhoto }) {
           <div className="sc-back-hint mono">Tap to flip back</div>
         </div>
       </div>
+      {isAdmin && (
+        <ImageCropper
+          open={Boolean(cropSrc)}
+          src={cropSrc}
+          aspectRatio={3 / 4}
+          onCancel={handleCropCancel}
+          onConfirm={handleCropConfirm}
+        />
+      )}
     </div>
   );
 }
@@ -623,6 +689,8 @@ function normalizeDeptName(teamStr) {
   return teamStr.trim();
 }
 
+const cleanNorm = (str) => (str || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || ['gxv', 'qul6b'].join('');
 
 const DEFAULT_FACULTY = [
@@ -747,7 +815,23 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
 
   const handleOpenEditModal = (m, fallback = {}, category = "team") => {
     setEditorCategory(category);
-    const memberObj = m?._id ? m : {
+    const cleanNorm = (str) => (str || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    // If m has _id, it's already a real DB member.
+    // Otherwise check if a real DB member exists with matching name/slug:
+    let realMember = m?._id ? m : null;
+    if (!realMember) {
+      const matchName = cleanNorm(m?.name || fallback.name || "");
+      if (matchName) {
+        realMember = dbMembers.find((item) => {
+          const iname = cleanNorm(item.name);
+          const islug = cleanNorm(item.slug);
+          return iname === matchName || islug === matchName || iname.includes(matchName) || matchName.includes(iname);
+        }) || null;
+      }
+    }
+
+    const memberObj = realMember ? { ...realMember } : {
       name: m?.name || fallback.name || "",
       slug: m?.slug || fallback.slug || "",
       role: m?.role || fallback.role || (category === "faculty" ? "Faculty Coordinator" : "Member"),
@@ -759,7 +843,7 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
       instagram: m?.instagram || "",
     };
     setEditingMember(memberObj);
-    setEditorMode(m?._id ? "edit" : "create");
+    setEditorMode(memberObj._id ? "edit" : "create");
     setEditorError("");
     setEditorOpen(true);
   };
@@ -917,13 +1001,53 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
       else d.members.push(item);
     });
 
-    // Fill in canonical default placeholders for any department that is empty or missing them
+    // Helper to check if a person with this name already exists in the department, leadership, or dbMembers
+    const isPersonAlreadyPresent = (dept, name) => {
+      const k = cleanNorm(name);
+      if (!k) return false;
+      // 1. Is the person in this department's leads, deputies, or members?
+      if (
+        dept.leads.some((x) => {
+          const xk = cleanNorm(x.name);
+          return xk === k || (xk.length >= 4 && (k.includes(xk) || xk.includes(k)));
+        }) ||
+        dept.deputies.some((x) => {
+          const xk = cleanNorm(x.name);
+          return xk === k || (xk.length >= 4 && (k.includes(xk) || xk.includes(k)));
+        }) ||
+        dept.members.some((x) => {
+          const xk = cleanNorm(x.name);
+          return xk === k || (xk.length >= 4 && (k.includes(xk) || xk.includes(k)));
+        })
+      ) {
+        return true;
+      }
+      // 2. Is the person in dbMembers anywhere in the database?
+      if (
+        dbMembers.some((m) => {
+          const mk = cleanNorm(m.name);
+          return mk === k || (mk.length >= 4 && (k.includes(mk) || mk.includes(k)));
+        })
+      ) {
+        return true;
+      }
+      // 3. Is the person in Leadership?
+      if (
+        LEADERS.some((l) => {
+          const lk = cleanNorm(l.name);
+          return lk === k || (lk.length >= 4 && (k.includes(lk) || lk.includes(k)));
+        })
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    // Fill in canonical default placeholders ONLY for people who do not already exist in DB or department
     CANONICAL_DEPTS.forEach((cd) => {
       const d = deptMap.get(cd.name);
       cd.defaultLeads.forEach((dlName) => {
-        const key = dlName.toLowerCase().trim();
-        const exists = d.leads.some((x) => x.name.toLowerCase().trim().includes(key) || key.includes(x.name.toLowerCase().trim()));
-        if (!exists) {
+        if (!isPersonAlreadyPresent(d, dlName)) {
           d.leads.push({
             name: dlName,
             slug: slugify(dlName),
@@ -936,9 +1060,7 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
         }
       });
       cd.defaultDeputies.forEach((ddName) => {
-        const key = ddName.toLowerCase().trim();
-        const exists = d.deputies.some((x) => x.name.toLowerCase().trim().includes(key) || key.includes(x.name.toLowerCase().trim()));
-        if (!exists) {
+        if (!isPersonAlreadyPresent(d, ddName)) {
           d.deputies.push({
             name: ddName,
             slug: slugify(ddName),
@@ -951,9 +1073,7 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
         }
       });
       cd.defaultMembers.forEach((dmName) => {
-        const key = dmName.toLowerCase().trim();
-        const exists = d.members.some((x) => x.name.toLowerCase().trim().includes(key) || key.includes(x.name.toLowerCase().trim()));
-        if (!exists) {
+        if (!isPersonAlreadyPresent(d, dmName)) {
           d.members.push({
             name: dmName,
             slug: slugify(dmName),
@@ -1566,15 +1686,100 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  const handleSpeakerPhotoUpload = async (speakerId, file) => {
+  const [speakerModalOpen, setSpeakerModalOpen] = useState(false);
+  const [speakerModalMode, setSpeakerModalMode] = useState("create");
+  const [editingSpeaker, setEditingSpeaker] = useState(null);
+  const [savingSpeaker, setSavingSpeaker] = useState(false);
+  const [speakerModalError, setSpeakerModalError] = useState("");
+
+  const handleSpeakerPhotoUpload = async (speaker, file) => {
     try {
-      const updated = await updateAdminSpeaker(token, speakerId, { image: file });
+      const speakerId = speaker._id || speaker.slug || speaker.name;
+      const updated = await updateAdminSpeaker(token, speakerId, {
+        name: speaker.name,
+        slug: speaker.slug,
+        role: speaker.role,
+        note: speaker.note,
+        topic: speaker.topic,
+        image: file,
+      });
       setSpeakers((prev) =>
-        prev.map((s) => (s._id === speakerId ? { ...s, image: updated.image } : s))
+        prev.map((s) =>
+          (s._id && updated._id && s._id === updated._id) ||
+          s._id === speaker._id ||
+          s.name === speaker.name
+            ? { ...s, ...updated }
+            : s
+        )
       );
       showToast("Speaker photo updated!");
     } catch (err) {
-      showToast(err.data?.message || "Failed to update speaker photo.");
+      showToast(err.data?.message || err.message || "Failed to update speaker photo.");
+    }
+  };
+
+  const handleOpenAddSpeaker = () => {
+    setEditingSpeaker({
+      name: "",
+      role: "Inauguration guest",
+      note: "",
+      topic: "",
+      order: speakers.length + 1,
+      image: "",
+    });
+    setSpeakerModalMode("create");
+    setSpeakerModalError("");
+    setSpeakerModalOpen(true);
+  };
+
+  const handleOpenEditSpeaker = (speaker) => {
+    setEditingSpeaker(speaker);
+    setSpeakerModalMode("edit");
+    setSpeakerModalError("");
+    setSpeakerModalOpen(true);
+  };
+
+  const handleSaveSpeaker = async (speakerData) => {
+    setSavingSpeaker(true);
+    setSpeakerModalError("");
+    try {
+      if (speakerModalMode === "create") {
+        const created = await createAdminSpeaker(token, speakerData);
+        setSpeakers((prev) => [...prev, created]);
+        showToast(`Added ${created.name} to speakers!`);
+      } else if (editingSpeaker) {
+        const speakerId = editingSpeaker._id || editingSpeaker.slug || editingSpeaker.name;
+        const updated = await updateAdminSpeaker(token, speakerId, speakerData);
+        setSpeakers((prev) =>
+          prev.map((s) =>
+            (s._id && updated._id && s._id === updated._id) ||
+            s._id === editingSpeaker._id ||
+            s.name === editingSpeaker.name
+              ? { ...s, ...updated }
+              : s
+          )
+        );
+        showToast(`Updated ${updated.name}!`);
+      }
+      setSpeakerModalOpen(false);
+      setEditingSpeaker(null);
+    } catch (err) {
+      setSpeakerModalError(err.data?.message || err.message || "Failed to save speaker.");
+    } finally {
+      setSavingSpeaker(false);
+    }
+  };
+
+  const handleDeleteSpeaker = async (speaker) => {
+    const speakerId = speaker._id || speaker.slug || speaker.name;
+    try {
+      await deleteAdminSpeaker(token, speakerId);
+      setSpeakers((prev) =>
+        prev.filter((s) => s._id !== speaker._id && s.name !== speaker.name)
+      );
+      showToast(`Removed speaker ${speaker.name}`);
+    } catch (err) {
+      showToast(err.data?.message || err.message || "Failed to remove speaker.");
     }
   };
 
@@ -1687,8 +1892,21 @@ export default function Home() {
 
       <section className="tx-section" id="speakers">
         <RevealCard>
-          <div className="eyebrow-tag mono">04 &mdash; Speakers &amp; ideas</div>
-          <h2 className="section-h2">SPEAKERS &amp; <span className="h-x">x</span> IDEAS</h2>
+          <div className="speakers-section-head">
+            <div>
+              <div className="eyebrow-tag mono">04 &mdash; Speakers &amp; ideas</div>
+              <h2 className="section-h2">SPEAKERS &amp; <span className="h-x">x</span> IDEAS</h2>
+            </div>
+            {isAdmin && (
+              <button
+                type="button"
+                className="btn btn-fill add-speaker-btn"
+                onClick={handleOpenAddSpeaker}
+              >
+                + Add Speaker
+              </button>
+            )}
+          </div>
           <p className="section-p">The lineup is taking shape. Our first confirmed guests join us for the inauguration on <b>5 October 2026</b>; each speaker will bring one idea, told in one voice, on one stage.</p>
           <div className="speaker-grid">
             {speakers.map((sp, i) => (
@@ -1698,10 +1916,11 @@ export default function Home() {
                 idx={i}
                 isAdmin={isAdmin}
                 onUploadPhoto={handleSpeakerPhotoUpload}
+                onEditSpeaker={handleOpenEditSpeaker}
+                onDeleteSpeaker={handleDeleteSpeaker}
               />
             ))}
           </div>
-          <div className="badge mono">More speakers will be announced soon</div>
           <div className="share-row"><button type="button" className="share-btn mono" onClick={()=>window.location.href="mailto:tedx@biet.ac.in?subject=Speaker%20Nomination%20%E2%80%94%20TEDxBIET"}>&#9733; Nominate A Speaker</button></div>
         </RevealCard>
       </section>
@@ -1788,6 +2007,21 @@ export default function Home() {
           <span>&copy; 2026 TED<span className="footer-x">x</span>BIET &mdash; Ibrahimpatnam, Hyderabad. Operated under license from TED.</span>
         </div>
       </footer>
+
+      {isAdmin && (
+        <SpeakerEditor
+          open={speakerModalOpen}
+          mode={speakerModalMode}
+          initialSpeaker={editingSpeaker}
+          saving={savingSpeaker}
+          error={speakerModalError}
+          onClose={() => {
+            setSpeakerModalOpen(false);
+            setEditingSpeaker(null);
+          }}
+          onSave={handleSaveSpeaker}
+        />
+      )}
 
       <div id="toast" className={`mono ${toast.show?"show":""}`}><span className="dot" /><span>{toast.msg}</span></div>
     </>

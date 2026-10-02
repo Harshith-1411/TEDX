@@ -9,16 +9,16 @@ function clamp(value, min, max) {
 }
 
 /**
- * Square crop UI over a selected image. Confirms with a cropped data URL.
+ * Crop UI over a selected image. Supports square (1:1) and vertical portrait (e.g. 3:4) ratios.
  */
-function ImageCropper({ src, open, onConfirm, onCancel }) {
+function ImageCropper({ src, open, onConfirm, onCancel, aspectRatio = 1 }) {
   const titleId = useId();
   const frameRef = useRef(null);
   const imageRef = useRef(null);
   const dragRef = useRef(null);
   const [natural, setNatural] = useState({ width: 0, height: 0 });
   const [display, setDisplay] = useState({ width: 0, height: 0, left: 0, top: 0 });
-  const [crop, setCrop] = useState({ x: 0, y: 0, size: 0 });
+  const [crop, setCrop] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
   const layoutImage = useCallback(() => {
     const frame = frameRef.current;
@@ -44,13 +44,20 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
     setNatural({ width: image.naturalWidth, height: image.naturalHeight });
     setDisplay({ width, height, left, top });
 
-    const size = Math.min(width, height) * 0.85;
+    let cropW = width * 0.85;
+    let cropH = cropW / aspectRatio;
+    if (cropH > height * 0.85) {
+      cropH = height * 0.85;
+      cropW = cropH * aspectRatio;
+    }
+
     setCrop({
-      x: left + (width - size) / 2,
-      y: top + (height - size) / 2,
-      size,
+      x: left + (width - cropW) / 2,
+      y: top + (height - cropH) / 2,
+      width: cropW,
+      height: cropH,
     });
-  }, []);
+  }, [aspectRatio]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -75,7 +82,7 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
 
     setNatural({ width: 0, height: 0 });
     setDisplay({ width: 0, height: 0, left: 0, top: 0 });
-    setCrop({ x: 0, y: 0, size: 0 });
+    setCrop({ x: 0, y: 0, width: 0, height: 0 });
 
     // Data URLs often finish loading before paint; re-layout after mount.
     let frameId = requestAnimationFrame(() => {
@@ -112,24 +119,41 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
       const { left, top, width, height } = display;
 
       if (drag.mode === 'move') {
-        const size = drag.origin.size;
+        const { width: cropW, height: cropH } = drag.origin;
         setCrop({
-          size,
-          x: clamp(drag.origin.x + dx, left, left + width - size),
-          y: clamp(drag.origin.y + dy, top, top + height - size),
+          width: cropW,
+          height: cropH,
+          x: clamp(drag.origin.x + dx, left, left + width - cropW),
+          y: clamp(drag.origin.y + dy, top, top + height - cropH),
         });
         return;
       }
 
-      const nextSize = clamp(
-        drag.origin.size + Math.max(dx, dy),
-        MIN_CROP,
-        Math.min(width, height)
+      const delta = Math.max(dx, dy * aspectRatio);
+      let nextW = clamp(
+        drag.origin.width + delta,
+        MIN_CROP * Math.max(0.6, aspectRatio),
+        width
       );
+      let nextH = nextW / aspectRatio;
+      if (nextH > height) {
+        nextH = height;
+        nextW = nextH * aspectRatio;
+      }
+      if (drag.origin.x + nextW > left + width) {
+        nextW = left + width - drag.origin.x;
+        nextH = nextW / aspectRatio;
+      }
+      if (drag.origin.y + nextH > top + height) {
+        nextH = top + height - drag.origin.y;
+        nextW = nextH * aspectRatio;
+      }
+
       setCrop({
-        size: nextSize,
-        x: clamp(drag.origin.x, left, left + width - nextSize),
-        y: clamp(drag.origin.y, top, top + height - nextSize),
+        width: nextW,
+        height: nextH,
+        x: drag.origin.x,
+        y: drag.origin.y,
       });
     }
 
@@ -147,34 +171,31 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
       window.removeEventListener('touchmove', onMove);
       window.removeEventListener('touchend', onUp);
     };
-  }, [open, display]);
+  }, [open, display, aspectRatio]);
 
   function handleConfirm() {
     const image = imageRef.current;
-    if (!image || !natural.width || !crop.size) return;
+    if (!image || !natural.width || !crop.width || !crop.height) return;
 
     const scaleX = natural.width / display.width;
     const scaleY = natural.height / display.height;
     const sx = (crop.x - display.left) * scaleX;
     const sy = (crop.y - display.top) * scaleY;
-    const sw = crop.size * scaleX;
-    const sh = crop.size * scaleY;
+    const sw = crop.width * scaleX;
+    const sh = crop.height * scaleY;
 
     const canvas = document.createElement('canvas');
-    // Allow up to 2048px for sharp profile photos on Retina and high-DPI displays.
-    const output = Math.min(2048, Math.max(800, Math.round(sw)));
-    canvas.width = output;
-    canvas.height = output;
+    const outputW = Math.min(2048, Math.max(600, Math.round(sw)));
+    const outputH = Math.round(outputW / aspectRatio);
+    canvas.width = outputW;
+    canvas.height = outputH;
     const ctx = canvas.getContext('2d');
 
-    // Use high-quality bicubic smoothing for crisp downsampling
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
-    ctx.drawImage(image, sx, sy, sw, sh, 0, 0, output, output);
+    ctx.drawImage(image, sx, sy, sw, sh, 0, 0, outputW, outputH);
 
-    // Convert canvas to a File so we can upload it as multipart/form-data
-    // 0.96 quality preserves fine details without noticeable compression artifacts.
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
@@ -222,14 +243,14 @@ function ImageCropper({ src, open, onConfirm, onCancel }) {
             onLoad={layoutImage}
             draggable={false}
           />
-          {crop.size > 0 && (
+          {crop.width > 0 && crop.height > 0 && (
             <div
               className="image-cropper-box"
               style={{
                 left: crop.x,
                 top: crop.y,
-                width: crop.size,
-                height: crop.size,
+                width: crop.width,
+                height: crop.height,
               }}
               onMouseDown={(event) => startDrag(event, 'move')}
               onTouchStart={(event) => startDrag(event, 'move')}

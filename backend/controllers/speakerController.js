@@ -69,19 +69,46 @@ async function createSpeaker(req, res) {
 
 async function updateSpeaker(req, res) {
   try {
-    const id = parseId(req.params.id);
-    if (!id) return res.status(400).json({ message: 'Invalid speaker id' });
+    const rawId = req.params.id;
+    let id = parseId(rawId);
+
+    const collection = await getSpeakersCollection();
+    let existing = id ? await collection.findOne({ _id: id }) : null;
+    if (!existing) {
+      existing = await collection.findOne({
+        $or: [
+          { slug: rawId },
+          { name: rawId },
+          ...(req.body.name ? [{ name: req.body.name }] : []),
+          ...(rawId && ObjectId.isValid(rawId) ? [{ _id: new ObjectId(rawId) }] : []),
+        ],
+      });
+      if (existing) {
+        id = existing._id;
+      }
+    }
 
     const imageUrl = req.file ? req.file.path : undefined;
     const imagePublicId = req.file ? req.file.filename : undefined;
 
-    const collection = await getSpeakersCollection();
-    const existing = await collection.findOne({ _id: id });
-    if (!existing) return res.status(404).json({ message: 'Speaker not found' });
+    const mergedInput = {
+      name: req.body.name || (existing ? existing.name : ''),
+      slug: req.body.slug || (existing ? existing.slug : ''),
+      role: req.body.role || (existing ? existing.role : 'Guest Speaker'),
+      note: req.body.note !== undefined ? req.body.note : (existing ? existing.note : ''),
+      topic: req.body.topic !== undefined ? req.body.topic : (existing ? existing.topic : ''),
+      order: req.body.order !== undefined ? req.body.order : (existing ? existing.order : 1),
+      image: req.body.image !== undefined ? req.body.image : (existing ? existing.image : ''),
+    };
 
-    const speaker = cleanSpeaker(req.body, imageUrl, imagePublicId);
+    const speaker = cleanSpeaker(mergedInput, imageUrl, imagePublicId);
     if (!speaker.name) {
       return res.status(400).json({ message: 'Speaker name is required' });
+    }
+
+    if (!existing) {
+      const created = await collection.insertOne(speaker);
+      return res.status(201).json({ ...speaker, _id: created.insertedId });
     }
 
     if (imagePublicId && existing.imagePublicId && existing.imagePublicId !== imagePublicId) {
@@ -89,6 +116,8 @@ async function updateSpeaker(req, res) {
     } else if (req.body.image === '' && existing.imagePublicId) {
       await tryDeleteCloudinaryImage(existing.imagePublicId);
       speaker.imagePublicId = '';
+    } else if (!imagePublicId && existing.imagePublicId) {
+      speaker.imagePublicId = existing.imagePublicId;
     }
 
     await collection.updateOne({ _id: id }, { $set: speaker });
@@ -100,12 +129,27 @@ async function updateSpeaker(req, res) {
 
 async function deleteSpeaker(req, res) {
   try {
-    const id = parseId(req.params.id);
-    if (!id) return res.status(400).json({ message: 'Invalid speaker id' });
+    const rawId = req.params.id;
+    let id = parseId(rawId);
 
     const collection = await getSpeakersCollection();
-    const existing = await collection.findOne({ _id: id });
-    if (!existing) return res.status(404).json({ message: 'Speaker not found' });
+    let existing = id ? await collection.findOne({ _id: id }) : null;
+    if (!existing) {
+      existing = await collection.findOne({
+        $or: [
+          { slug: rawId },
+          { name: rawId },
+          ...(rawId && ObjectId.isValid(rawId) ? [{ _id: new ObjectId(rawId) }] : []),
+        ],
+      });
+      if (existing) {
+        id = existing._id;
+      }
+    }
+
+    if (!existing) {
+      return res.status(204).end();
+    }
 
     if (existing.imagePublicId) {
       await tryDeleteCloudinaryImage(existing.imagePublicId);
