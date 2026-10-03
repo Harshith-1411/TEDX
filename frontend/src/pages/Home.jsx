@@ -1355,6 +1355,61 @@ export default function Home() {
   const { isAdmin, token } = useAdminAuth();
   useEffect(() => { document.title = "TEDx BIET | Ideas Worth Spreading"; }, []);
 
+  useEffect(() => {
+    // Check if we are restoring scroll from visiting a member profile
+    const savedY = sessionStorage.getItem("tedx_home_scroll_y");
+    if (savedY) {
+      const targetY = parseInt(savedY, 10);
+      if (!isNaN(targetY) && targetY > 0) {
+        if ("scrollRestoration" in window.history) {
+          window.history.scrollRestoration = "manual";
+        }
+        window.scrollTo({ top: targetY, behavior: "instant" });
+
+        let count = 0;
+        const interval = setInterval(() => {
+          window.scrollTo({ top: targetY, behavior: "instant" });
+          count++;
+          if (count >= 8) clearInterval(interval);
+        }, 40);
+
+        const onFirstScroll = () => {
+          clearInterval(interval);
+          window.removeEventListener("wheel", onFirstScroll);
+          window.removeEventListener("touchmove", onFirstScroll);
+        };
+        window.addEventListener("wheel", onFirstScroll, { passive: true });
+        window.addEventListener("touchmove", onFirstScroll, { passive: true });
+
+        return () => {
+          clearInterval(interval);
+          window.removeEventListener("wheel", onFirstScroll);
+          window.removeEventListener("touchmove", onFirstScroll);
+        };
+      }
+    } else if (window.location.hash) {
+      const hash = window.location.hash;
+      const timer = setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  useEffect(() => {
+    const saveScroll = () => {
+      if (window.scrollY > 0) {
+        sessionStorage.setItem("tedx_home_scroll_y", String(window.scrollY));
+      }
+    };
+    window.addEventListener("scroll", saveScroll, { passive: true });
+    return () => {
+      saveScroll();
+      window.removeEventListener("scroll", saveScroll);
+    };
+  }, []);
+
   const [eventSettings, setEventSettings] = useState({
     eventDate: "2026-10-05T09:00:00+05:30",
     eventDateLabel: "5 October 2026",

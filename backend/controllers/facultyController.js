@@ -1,4 +1,4 @@
-const { getFacultyCollection } = require('../db');
+const { getFacultyCollection, getTeamCollection } = require('../db');
 
 async function getAllFaculty(req, res) {
   try {
@@ -15,9 +15,14 @@ async function getFacultyBySlug(req, res) {
   try {
     const { slug } = req.params;
     const collection = await getFacultyCollection();
-    const member = await collection.findOne({ slug });
+    let member = await collection.findOne({ slug });
 
     if (!member) {
+      const teamCollection = await getTeamCollection();
+      member = await teamCollection.findOne({ slug });
+      if (member) {
+        return res.json({ ...member, isFaculty: false });
+      }
       return res.status(404).json({ message: 'Faculty coordinator not found' });
     }
 

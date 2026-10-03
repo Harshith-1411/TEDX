@@ -1,12 +1,24 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Loader() {
   const [pct, setPct] = useState(0);
   const [text, setText] = useState('ALIGNING THE FRACTURE — 0%');
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(() => {
+    try {
+      return sessionStorage.getItem('tedx_initial_loader_shown') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const fillRef = useRef(null);
 
   useEffect(() => {
+    if (hidden) return;
+
+    try {
+      sessionStorage.setItem('tedx_initial_loader_shown', 'true');
+    } catch {}
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion) { setHidden(true); return; }
 
@@ -27,7 +39,7 @@ export default function Loader() {
     }, 3200);
 
     return () => { clearInterval(interval); clearTimeout(timeout); };
-  }, []);
+  }, [hidden]);
 
   if (hidden) return null;
 

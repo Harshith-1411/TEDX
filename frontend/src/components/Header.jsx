@@ -103,11 +103,21 @@ function Header({ siteSettings = {}, onSiteSettingsChange }) {
   const closeMenu = () => setMenuOpen(false);
 
   const handleHashClick = (e, hash) => {
+    e.preventDefault();
     closeMenu();
     if (window.location.pathname === '/') {
-      e.preventDefault();
       const el = document.querySelector(hash);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate(`/${hash}`);
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
     }
   };
 

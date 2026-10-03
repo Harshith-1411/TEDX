@@ -1,4 +1,4 @@
-const { getTeamCollection } = require('../db');
+const { getTeamCollection, getFacultyCollection } = require('../db');
 
 async function getAllTeamMembers(req, res) {
   try {
@@ -16,13 +16,21 @@ async function getAllTeamMembers(req, res) {
 async function getTeamMemberBySlug(req, res) {
   try {
     const { slug } = req.params;
-    const collection = await getTeamCollection();
-    const member = await collection.findOne(
+    const teamCollection = await getTeamCollection();
+    let member = await teamCollection.findOne(
       { slug },
       { projection: { _id: 0 } }
     );
 
     if (!member) {
+      const facultyCollection = await getFacultyCollection();
+      member = await facultyCollection.findOne(
+        { slug },
+        { projection: { _id: 0 } }
+      );
+      if (member) {
+        return res.json({ ...member, isFaculty: true });
+      }
       return res.status(404).json({ message: 'Team member not found' });
     }
 
