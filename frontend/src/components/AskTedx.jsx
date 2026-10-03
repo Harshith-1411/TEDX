@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getTeamMembers } from '../services/api';
+import { getTeamMembers, getSpeakers } from '../services/api';
 import './AskTedx.css';
 
 const ASCII_ART = `  _____ _____ ____ 
@@ -30,6 +30,7 @@ export default function AskTedx() {
   const [isListening, setIsListening] = useState(false);
   const [countdown, setCountdown] = useState(getCountdownString);
   const [teamMembers, setTeamMembers] = useState([]);
+  const [speakers, setSpeakers] = useState([]);
   const [logs, setLogs] = useState([]);
   const outRef = useRef(null);
   const inputRef = useRef(null);
@@ -44,11 +45,17 @@ export default function AskTedx() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch real team members from MongoDB on load
+  // Fetch real team members and speakers from MongoDB on load
   useEffect(() => {
     getTeamMembers()
       .then((data) => {
         if (Array.isArray(data)) setTeamMembers(data);
+      })
+      .catch(() => {});
+
+    getSpeakers()
+      .then((data) => {
+        if (Array.isArray(data)) setSpeakers(data);
       })
       .catch(() => {});
   }, []);
@@ -161,22 +168,12 @@ export default function AskTedx() {
     const q = query.toLowerCase().replace(/^(who\s+is|who\s+|find\s+|look\s+up\s+)/, '').trim();
     if (!q) return null;
 
-    // Direct Manohar check to match chatbot_response.png precisely
-    if (q.includes('manohar')) {
-      return {
-        name: 'G. Manohar',
-        role: 'Technical Lead',
-        event: 'TEDxBIET1 · 5 October 2026',
-        initial: 'M',
-        image: '',
-      };
-    }
-
     // Search in DB team members
     const matched = teamMembers.find((m) => {
       const name = (m.name || '').toLowerCase();
       const slug = (m.slug || '').toLowerCase();
-      return name.includes(q) || slug.includes(q) || q.includes(name);
+      const role = (m.role || '').toLowerCase();
+      return name.includes(q) || slug.includes(q) || q.includes(name) || (role && role.includes(q));
     });
 
     if (matched) {
@@ -189,23 +186,20 @@ export default function AskTedx() {
       };
     }
 
-    // Default organizers
-    if (q.includes('sania') || q.includes('fathima')) {
+    // Search in DB speakers
+    const matchedSpeaker = speakers.find((s) => {
+      const name = (s.name || '').toLowerCase();
+      const topic = (s.topic || '').toLowerCase();
+      return name.includes(q) || q.includes(name) || (topic && topic.includes(q));
+    });
+
+    if (matchedSpeaker) {
       return {
-        name: 'Shaik Fathima Sania',
-        role: 'Organizer & Licensee',
+        name: matchedSpeaker.name,
+        role: matchedSpeaker.role || 'Guest Speaker',
         event: 'TEDxBIET1 · 5 October 2026',
-        initial: 'S',
-        image: '',
-      };
-    }
-    if (q.includes('aarushi') || q.includes('channa')) {
-      return {
-        name: 'Sai Aarushi Channa',
-        role: 'Co-Organizer',
-        event: 'TEDxBIET1 · 5 October 2026',
-        initial: 'A',
-        image: '',
+        initial: (matchedSpeaker.name || 'S')[0].toUpperCase(),
+        image: matchedSpeaker.image || '',
       };
     }
 
@@ -322,9 +316,20 @@ export default function AskTedx() {
     else if (cmd === 'guests' || cmd === 'speakers' || cmd.includes('guest') || cmd.includes('speaker')) {
       newLogs.push(
         { type: 'gap' },
-        { type: 'head', text: 'Inauguration Guests & Speakers · 5 Oct 2026' },
-        { type: 'kv', k: 'Ajay Kumar', v: 'Soulfulvolgs — Creative Storyteller & Digital Journey' },
-        { type: 'kv', k: 'Hari Pavan', v: 'HR — Human Potential & Leadership Strategy' },
+        { type: 'head', text: 'Inauguration Guests & Speakers · 5 Oct 2026' }
+      );
+      if (speakers.length > 0) {
+        speakers.forEach((sp) => {
+          newLogs.push({
+            type: 'kv',
+            k: sp.name,
+            v: `${sp.role || 'Guest Speaker'}${sp.note ? ` (${sp.note})` : ''}${sp.topic ? ` — "${sp.topic}"` : ''}`,
+          });
+        });
+      } else {
+        newLogs.push({ type: 'dim', text: 'Speaker lineup will be announced as the conference nears.' });
+      }
+      newLogs.push(
         { type: 'dim', text: 'Additional visionary speakers will be unveiled as the conference nears.' },
         { type: 'gap' }
       );
@@ -333,19 +338,38 @@ export default function AskTedx() {
     else if (cmd === 'team' || cmd === 'faces' || cmd === 'leads' || cmd.includes('organizer') || cmd.includes('department')) {
       newLogs.push(
         { type: 'gap' },
-        { type: 'head', text: 'Organizing Team Leadership' },
-        { type: 'kv', k: 'Organizer', v: 'Shaik Fathima Sania (Licensee)' },
-        { type: 'kv', k: 'Co-Organizer', v: 'Sai Aarushi Channa' },
-        { type: 'head', text: '12 Organizing Departments' },
-        { type: 'kv', k: 'Technical', v: 'G. Manohar, Harshith Chepuri, Shruti Jaiswal' },
-        { type: 'kv', k: 'Documentation', v: 'Tejaswini Banala, Harshavardhan Konda' },
-        { type: 'kv', k: 'Hospitality', v: 'Keerthana Chukka' },
-        { type: 'kv', k: 'Registration', v: 'Ch. Tanmay Prudhinandan' },
-        { type: 'kv', k: 'Sponsorship', v: 'V. Lakshmi Anudeep, Shashi Preetham, Harika' },
-        { type: 'kv', k: 'Design', v: 'Bharath Reddy, Joy Vihaan, Akshay Munnur' },
-        { type: 'kv', k: 'Photography', v: 'Shaik Faisal Aiyan, B. Tilak, Raghavendra' },
-        { type: 'kv', k: 'Event Mgmt', v: 'K. Mithali, Palle Pranay, Sindhu Sai' },
-        { type: 'kv', k: 'Editing', v: 'Revanth, Raghavendra' },
+        { type: 'head', text: 'Organizing Team Leadership' }
+      );
+      const leaders = teamMembers.filter((m) => {
+        const r = (m.role || '').toLowerCase();
+        const t = (m.team || '').toLowerCase();
+        return r.includes('organizer') || r.includes('license') || t.includes('leadership');
+      });
+      if (leaders.length > 0) {
+        leaders.forEach((l) => {
+          newLogs.push({ type: 'kv', k: l.role || 'Leader', v: l.name });
+        });
+      }
+
+      // Group departments
+      const deptMap = {};
+      teamMembers.forEach((m) => {
+        const r = (m.role || '').toLowerCase();
+        const t = (m.team || '').toLowerCase();
+        if (r.includes('organizer') || r.includes('license') || t.includes('leadership')) return;
+        const dept = m.team || 'General';
+        if (!deptMap[dept]) deptMap[dept] = [];
+        deptMap[dept].push(m.name);
+      });
+
+      const depts = Object.keys(deptMap);
+      if (depts.length > 0) {
+        newLogs.push({ type: 'head', text: `${depts.length} Organizing Departments` });
+        depts.forEach((dept) => {
+          newLogs.push({ type: 'kv', k: dept, v: deptMap[dept].join(', ') });
+        });
+      }
+      newLogs.push(
         {
           type: 'dim',
           html: (

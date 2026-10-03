@@ -15,275 +15,6 @@ import EditableImage from '../components/EditableImage';
 import MemberEditor from '../components/MemberEditor';
 import './TeamMember.css';
 
-const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || ['gxv', 'qul6b'].join('');
-
-// Fallback catalog from template for all 22 team members
-const STATIC_REGISTRY = {
-  'shaik-fathima-sania': {
-    name: 'Shaik Fathima Sania',
-    role: 'Organizer / License Holder',
-    team: 'Leadership',
-    description: 'Leading and overseeing the entire TEDx event, ensuring full TEDx compliance, and coordinating all departments, sponsors, and speakers.',
-    roles: [
-      'Lead and oversee the entire TEDx event',
-      'Make key decisions and ensure TEDx compliance',
-      'Coordinate all departments and speakers',
-      'Approve budgets, plans, and timelines',
-      'Represent the event with sponsors, partners, and guests',
-      'Ensure successful event execution',
-    ],
-  },
-  'sai-aarushi-channa': {
-    name: 'Sai Aarushi Channa',
-    role: 'Co-Organizer',
-    team: 'Leadership',
-    description: 'Supporting the Organizer in all event operations, monitoring progress and milestones, and driving cross-team synchronization.',
-    roles: [
-      'Support the Organizer in all event operations',
-      'Monitor department progress and deadlines',
-      'Coordinate communication between teams',
-      'Assist in planning, problem-solving, and event management',
-      'Take charge when the Organizer is unavailable',
-      'Ensure smooth execution before and during the event',
-    ],
-  },
-  'v-lakshmi-anudeep': {
-    name: 'V. Lakshmi Anudeep',
-    role: 'Lead',
-    team: 'Sponsorship',
-    description: 'Driving sponsorship relations and industry collaborations for TEDxBIET 2026.',
-    roles: [
-      'Identify potential sponsors and partners',
-      'Prepare sponsorship proposals and packages',
-      'Contact companies and schedule meetings',
-      'Negotiate sponsorship benefits and agreements',
-    ],
-  },
-  'shashi-preetham': {
-    name: 'Shashi Preetham',
-    role: 'Deputy Lead',
-    team: 'Sponsorship',
-    description: 'Assisting sponsorship acquisition, partner communications, and deliverable fulfillment.',
-    roles: [
-      'Maintain sponsor relationships before and during event',
-      'Ensure sponsor deliverables are fulfilled',
-      'Collect sponsorship agreements and documents',
-    ],
-  },
-  'nizam': {
-    name: 'Nizam',
-    role: 'Lead',
-    team: 'Design',
-    description: 'Crafting the visual identity, digital art, and scenic branding of TEDxBIET.',
-    roles: [
-      'Create event branding and visual identity',
-      'Design posters, banners, passes, certificates, and presentations',
-      'Ensure TEDx branding guidelines are followed across all media',
-    ],
-  },
-  'joy-vihaan': {
-    name: 'Joy Vihaan',
-    role: 'Member',
-    team: 'Design',
-    description: 'Visual designer specializing in creative assets and multimedia storytelling.',
-    roles: [
-      'Design digital social assets and banners',
-      'Assist with stage visual aesthetics and merchandise graphics',
-    ],
-  },
-  'akshay': {
-    name: 'Akshay',
-    role: 'Member',
-    team: 'Design',
-    description: 'Graphic designer supporting promotional collateral and brand consistency.',
-    roles: [
-      'Design event passes, certificates, and signage',
-      'Maintain brand guidelines across all published media',
-    ],
-  },
-  'shaik-faisal-aiyan': {
-    name: 'Shaik Faisal Aiyan',
-    role: 'Lead',
-    team: 'Photography & Videography',
-    description: 'Directing the visual capture and cinematic documentation of TEDxBIET.',
-    roles: [
-      'Plan photo and video coverage across all stages',
-      'Assign photographers and videographers to key zones',
-      'Capture event preparations, speakers, and audience moments',
-    ],
-  },
-  'n-sruthi': {
-    name: 'N. Sruthi',
-    role: 'Lead',
-    team: 'Finance',
-    description: 'Managing overall budget allocation, financial transparency, and accounts.',
-    roles: [
-      'Prepare and manage the event budget',
-      'Track income, expenses, and invoices',
-      'Prepare the post-event financial report',
-    ],
-  },
-  'k-srija': {
-    name: 'K. Srija',
-    role: 'Deputy Lead',
-    team: 'Finance',
-    description: 'Supporting financial audits, expense documentation, and vendor disbursements.',
-    roles: [
-      'Maintain payment records and receipts',
-      'Coordinate with the sponsorship team regarding funds',
-    ],
-  },
-  'revanth': {
-    name: 'Revanth',
-    role: 'Lead',
-    team: 'Editing',
-    description: 'Post-production lead producing teaser videos, speaker intros, and after-movies.',
-    roles: [
-      'Edit promotional videos and reels',
-      'Create speaker introduction videos',
-      'Produce highlight videos and the official after-movie',
-    ],
-  },
-  'ch-tanmay-prudhvinandan': {
-    name: 'Ch. Tanmay Prudhvinandan',
-    role: 'Lead',
-    team: 'Registration',
-    description: 'Managing attendee onboarding, ticket verifications, and front-desk logistics.',
-    roles: [
-      'Manage attendee registrations and confirmations',
-      'Maintain participant databases and check-in desks',
-    ],
-  },
-  'k-mithali': {
-    name: 'K. Mithali',
-    role: 'Lead',
-    team: 'Event Management',
-    description: 'Directing stage schedule, venue flow, and overall audience experience.',
-    roles: [
-      'Coordinate venue logistics and stage setup',
-      'Manage event day schedule and crowd control',
-    ],
-  },
-  'palle-pranay': {
-    name: 'Palle Pranay',
-    role: 'Deputy Lead',
-    team: 'Event Management',
-    description: 'Assisting event day execution and backstage speaker coordination.',
-    roles: [
-      'Oversee sound, lighting, and stage flow',
-      'Support speakers and guests on event day',
-    ],
-  },
-  'harika': {
-    name: 'Harika',
-    role: 'Member',
-    team: 'Event Management',
-    description: 'Facilitating attendee navigation and stage operations.',
-    roles: [
-      'Manage hall transitions and guest guidance',
-    ],
-  },
-  's-sunny-abhishek': {
-    name: 'S. Sunny Abhishek',
-    role: 'Content Creator',
-    team: 'Content Creation',
-    description: 'Crafting captivating social media narratives, copies, and digital outreach.',
-    roles: [
-      'Manage Instagram, LinkedIn, and social platforms',
-      'Create the content calendar and countdown campaigns',
-      'Engage with followers and track analytics',
-    ],
-  },
-  'g-manohar': {
-    name: 'G. Manohar',
-    role: 'Lead',
-    team: 'Technical',
-    description: 'Leading web architecture, platform development, and digital systems.',
-    roles: [
-      'Develop and maintain the official TEDxBIET website',
-      'Implement interactive web features and countdown systems',
-      'Ensure high performance, mobile responsiveness, and uptime',
-    ],
-  },
-  'harshith': {
-    name: 'Harshith',
-    role: 'Deputy Lead',
-    team: 'Technical',
-    description: 'Full-stack developer implementing responsive web features and API integrations.',
-    roles: [
-      'Maintain digital assets and web infrastructure',
-      'Support frontend performance and backend services',
-    ],
-  },
-  'noel-charan': {
-    name: 'Noel Charan',
-    role: 'Lead',
-    team: 'Purchasing',
-    description: 'Overseeing procurement, material quality, and vendor deliveries.',
-    roles: [
-      'Procure official TEDx materials, badges, and merchandise',
-      'Manage vendor orders and delivery schedules',
-    ],
-  },
-  'b-tejaswini': {
-    name: 'B. Tejaswini',
-    role: 'Lead',
-    team: 'Documentation',
-    description: 'Overseeing official minutes, archival records, and compliance files.',
-    roles: [
-      'Maintain official TEDx records and progress reports',
-      'Manage agreements, permissions, and approvals',
-      'Compile the final TEDx event report',
-    ],
-  },
-  'harsha-vardhan': {
-    name: 'Harsha Vardhan',
-    role: 'Deputy Lead',
-    team: 'Documentation',
-    description: 'Documenting meeting records, speaker agreements, and participant archives.',
-    roles: [
-      'Prepare meeting minutes and attendance records',
-      'Store files in organized digital repositories',
-    ],
-  },
-  'keerthana-chukka': {
-    name: 'Keerthana Chukka',
-    role: 'Lead',
-    team: 'Hospitality',
-    description: 'Hosting distinguished guests, coordinating refreshments, and concierge services.',
-    roles: [
-      'Welcome and host distinguished guests, speakers, and attendees',
-      'Coordinate catering and guest accommodations',
-    ],
-  },
-  'nazneen-fatima': {
-    name: 'Nazneen Fatima',
-    role: 'Faculty Coordinator',
-    team: 'Faculty Coordination',
-    image: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/v1790871663/tedx-faculty-coordinators/nazneen-fatima.jpg`,
-    description: 'Provides academic guidance and coordinates faculty activities to support the team’s goals and initiatives.',
-    roles: [
-      'Provide academic guidance and institutional support for TEDxBIET',
-      'Coordinate faculty involvement, departmental permissions, and academic scheduling',
-      'Liaise between student organizers and college administration',
-      'Ensure event execution adheres to university standards and safety policies',
-    ],
-  },
-  'rehana': {
-    name: 'Rehana',
-    role: 'Faculty Coordinator',
-    team: 'Faculty Coordination',
-    image: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/v1790871708/tedx-faculty-coordinators/rehana.jpg`,
-    description: 'Supports student and team activities while helping coordinate academic programs, events, and faculty involvement.',
-    roles: [
-      'Support student organizing committees across operational and logistics workflows',
-      'Coordinate academic department outreach and auditorium scheduling',
-      'Facilitate student permissions, certifications, and institutional arrangements',
-      'Mentor leadership leads on project management and event protocol',
-    ],
-  },
-};
-
 const getInitials = (n) => {
   const w = String(n || '').split(/\s+/).filter((x) => !/\.$/.test(x));
   return (w.length ? w : String(n || '').split(/\s+/)).slice(0, 2).map((x) => x[0]).join('').toUpperCase();
@@ -316,7 +47,6 @@ export default function TeamMember() {
     setStatusMessage('');
 
     async function load() {
-      // 1. First attempt to load from live API
       try {
         if (isAdmin) {
           const [team, faculty] = await Promise.all([getAdminMembers(token), getAdminFaculty(token)]);
@@ -369,14 +99,7 @@ export default function TeamMember() {
         }
       }
 
-      // 2. Fallback to rich static catalog
-      const fallback = STATIC_REGISTRY[slug];
-      if (fallback && !cancelled) {
-        const isFac = fallback.team === 'Faculty Coordination' || fallback.role?.includes('Faculty');
-        setMember({ ...fallback, slug, _id: slug });
-        setKind(isFac ? 'faculty' : 'team');
-        document.title = `${fallback.name} | TEDx BIET`;
-      } else if (!cancelled) {
+      if (!cancelled) {
         setMember(null);
         document.title = 'Profile Not Found | TEDx BIET';
       }
@@ -490,10 +213,16 @@ export default function TeamMember() {
     );
   }
 
-  const staticFallback = STATIC_REGISTRY[slug] || {};
-  const rolesList = member.roles || staticFallback.roles || [];
-  const teamName = member.team || staticFallback.team || (isFaculty ? 'Faculty Coordination' : 'Organizing Team');
-  const description = member.description || staticFallback.description || 'Dedicated to bringing ideas worth spreading to Bharat Institute of Engineering and Technology.';
+  const rolesList = Array.isArray(member.roles) && member.roles.length > 0
+    ? member.roles
+    : typeof member.roles === 'string' && member.roles.trim()
+      ? member.roles.split('\n').map((r) => r.trim()).filter(Boolean)
+      : [
+          `Execute and coordinate responsibilities for the ${member.team || 'TEDxBIET'} team.`,
+          'Ensure high quality event delivery and adherence to TEDx regulations.',
+        ];
+  const teamName = member.team || (isFaculty ? 'Faculty Coordination' : 'Organizing Team');
+  const description = member.description || 'Dedicated to bringing ideas worth spreading to Bharat Institute of Engineering and Technology.';
 
   return (
     <article className="profile-page">

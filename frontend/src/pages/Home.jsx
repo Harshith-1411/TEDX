@@ -23,6 +23,7 @@ import MemberEditor from "../components/MemberEditor";
 import SpeakerEditor from "../components/SpeakerEditor";
 import CampusMap from "../components/CampusMap";
 import ImageCropper from "../components/ImageCropper";
+import PhotoCursor from "../components/PhotoCursor";
 import "./Home.css";
 
 const TARGET = new Date("2026-10-05T09:00:00+05:30").getTime();
@@ -155,208 +156,6 @@ const ICONS = {
   heart: (<><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></>),
 };
 
-const LEADERS = [
-  {
-    tag: "Organizer / License Holder",
-    name: "Shaik Fathima Sania",
-    slug: "shaik-fathima-sania",
-    roles: [
-      "Lead and oversee the entire TEDx event",
-      "Make key decisions and ensure TEDx compliance",
-      "Coordinate all departments and speakers",
-      "Approve budgets, plans, and timelines",
-      "Represent the event with sponsors, partners, and guests",
-      "Ensure successful event execution",
-    ],
-  },
-  {
-    tag: "Co-Organizer",
-    name: "Sai Aarushi Channa",
-    slug: "sai-aarushi-channa",
-    roles: [
-      "Support the Organizer in all event operations",
-      "Monitor department progress and deadlines",
-      "Coordinate communication between teams",
-      "Assist in planning, problem-solving, and event management",
-      "Take charge when the Organizer is unavailable",
-      "Ensure smooth execution before and during the event",
-    ],
-  },
-];
-
-const DEPTS = [
-  {
-    name: "Sponsorship",
-    icon: "award",
-    leads: ["V. Lakshmi Anudeep"],
-    deputies: ["Shashi Preetham"],
-    members: [],
-    roles: [
-      "Identify potential sponsors and partners",
-      "Prepare sponsorship proposals and packages",
-      "Contact companies and schedule meetings",
-      "Negotiate sponsorship benefits",
-      "Maintain sponsor relationships before, during, and after the event",
-      "Ensure sponsor deliverables are fulfilled",
-      "Collect sponsorship agreements and documents",
-    ],
-  },
-  {
-    name: "Design",
-    icon: "pen",
-    leads: [],
-    deputies: [],
-    members: ["Nizam", "Joy Vihaan", "Akshay"],
-    roles: [
-      "Create event branding and visual identity",
-      "Design posters, banners, standees, certificates, passes, and presentations",
-      "Ensure TEDx branding guidelines are followed",
-      "Coordinate with marketing and social media teams",
-      "Maintain design consistency across all platforms",
-    ],
-  },
-  {
-    name: "Photography & Videography",
-    icon: "camera",
-    leads: ["Shaik Faisal Aiyan"],
-    deputies: [],
-    members: [],
-    roles: [
-      "Plan photo and video coverage",
-      "Assign photographers / videographers to locations",
-      "Capture event preparations, speakers, audience, and activities",
-      "Organize and store media files",
-      "Coordinate with the editing team for content creation",
-    ],
-  },
-  {
-    name: "Finance",
-    icon: "chart",
-    leads: ["N. Sruthi"],
-    deputies: ["K. Srija"],
-    members: [],
-    roles: [
-      "Prepare and manage the event budget",
-      "Track income and expenses",
-      "Maintain invoices and payment records",
-      "Coordinate with the sponsorship team regarding funds",
-      "Ensure financial transparency",
-      "Prepare the post-event financial report",
-    ],
-  },
-  {
-    name: "Editing",
-    icon: "film",
-    leads: ["Revanth"],
-    deputies: [],
-    members: [],
-    roles: [
-      "Edit promotional videos and reels",
-      "Create speaker introduction videos",
-      "Produce highlight videos and the after-movie",
-      "Manage video content deadlines",
-      "Ensure high-quality audio and visual output",
-    ],
-  },
-  {
-    name: "Registration",
-    icon: "check",
-    leads: ["Ch. Tanmay Prudhvinandan"],
-    deputies: [],
-    members: [],
-    roles: [
-      "Manage attendee registrations",
-      "Maintain the participant database",
-      "Handle ticketing and confirmations",
-      "Manage the check-in desk on event day",
-    ],
-  },
-  {
-    name: "Event Management",
-    icon: "cal",
-    leads: ["K. Mithali"],
-    deputies: ["Palle Pranay"],
-    members: ["Harika"],
-    roles: [
-      "Coordinate venue logistics and stage setup",
-      "Manage event day schedule and crowd control",
-      "Oversee sound, lighting, and stage flow",
-      "Support speakers and guests on event day",
-    ],
-  },
-  {
-    name: "Content Creation",
-    icon: "share",
-    leads: [],
-    deputies: [],
-    members: [{ name: "S. Sunny Abhishek", title: "Content Creator" }],
-    roles: [
-      "Manage Instagram, LinkedIn, and other platforms",
-      "Create the content calendar",
-      "Post regular updates, speaker announcements, and countdowns",
-      "Engage with followers and respond to messages",
-      "Track analytics and audience engagement",
-      "Coordinate with design and editing teams for content",
-    ],
-  },
-  {
-    name: "Technical",
-    icon: "code",
-    leads: ["G. Manohar"],
-    deputies: ["Harshith"],
-    members: [],
-    roles: [
-      "Develop and maintain the official TEDxBIET website",
-      "Implement interactive web features, countdown, and ticketing portals",
-      "Ensure high performance, mobile responsiveness, and server reliability",
-      "Manage digital assets and technical infrastructure",
-    ],
-  },
-  {
-    name: "Purchasing",
-    icon: "cart",
-    leads: ["Noel Charan"],
-    deputies: [],
-    members: [],
-    roles: [
-      "Procure official TEDx materials, badges, and merchandise",
-      "Manage vendor orders and delivery schedules",
-      "Coordinate with the Finance team on purchase orders and receipts",
-    ],
-  },
-  {
-    name: "Documentation",
-    icon: "file",
-    leads: ["B. Tejaswini"],
-    deputies: ["Harsha Vardhan"],
-    members: [],
-    roles: [
-      "Maintain all official TEDx event records and documents",
-      "Prepare meeting minutes and attendance records",
-      "Collect department progress reports",
-      "Manage sponsorship agreements, permissions, and approvals",
-      "Organize speaker information, profiles, and consent forms",
-      "Maintain registration and volunteer databases",
-      "Prepare event reports and post-event documentation",
-      "Store all files in an organized digital repository",
-      "Coordinate with all departments for proper record-keeping",
-      "Compile the final TEDx event report for future reference",
-    ],
-  },
-  {
-    name: "Hospitality",
-    icon: "heart",
-    leads: ["Keerthana Chukka"],
-    deputies: [],
-    members: [],
-    roles: [
-      "Welcome and host distinguished guests, speakers, and attendees",
-      "Coordinate refreshments, catering, and guest accommodations",
-      "Provide concierge assistance and ensure comfortable guest experience",
-    ],
-  },
-];
-
 const slugify = (n) => String(n).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const getInitials = (n) => {
   const w = String(n).split(/\s+/).filter(x => !/\.$/.test(x));
@@ -408,93 +207,100 @@ function SpeakerCard({
   };
 
   return (
-    <div
-      className={`speaker-card-flip ${flipped ? "flipped" : ""}`}
-      onClick={handleCardClick}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && !e.target.closest("button") && setFlipped((f) => !f)}
-      tabIndex={0}
-      role="button"
-      aria-pressed={flipped}
-      aria-label={`${speaker.name}. Click to reveal the idea.`}
+    <PhotoCursor
+      name={speaker.name}
+      sub={speaker.role || "Inauguration guest"}
+      image={speaker.image}
+      disabled={flipped}
     >
-      <div className="sc-inner">
-        <div className="sc-face sc-front">
-          <div className="speaker-avatar-wrap">
-            {speaker.image ? (
-              <img src={speaker.image} alt={speaker.name} className="speaker-avatar-img" />
-            ) : (
-              <ConstellationSVG idx={idx} />
-            )}
-            <span className="sc-hint mono">Tap to flip</span>
-            {isAdmin && (
-              <div className="speaker-admin-actions" onClick={(e) => e.stopPropagation()}>
-                <button
-                  type="button"
-                  className="speaker-upload-trigger"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  title="Upload & Crop Speaker Photo (3:4)"
-                >
-                  {uploading ? "Uploading..." : "📷 Change Photo"}
-                </button>
-                {onEditSpeaker && (
+      <div
+        className={`speaker-card-flip ${flipped ? "flipped" : ""}`}
+        onClick={handleCardClick}
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && !e.target.closest("button") && setFlipped((f) => !f)}
+        tabIndex={0}
+        role="button"
+        aria-pressed={flipped}
+        aria-label={`${speaker.name}. Click to reveal the idea.`}
+      >
+        <div className="sc-inner">
+          <div className="sc-face sc-front">
+            <div className="speaker-avatar-wrap">
+              {speaker.image ? (
+                <img src={speaker.image} alt={speaker.name} className="speaker-avatar-img" />
+              ) : (
+                <ConstellationSVG idx={idx} />
+              )}
+              <span className="sc-hint mono">Tap to flip</span>
+              {isAdmin && (
+                <div className="speaker-admin-actions" onClick={(e) => e.stopPropagation()}>
                   <button
                     type="button"
-                    className="speaker-action-btn"
-                    onClick={() => onEditSpeaker(speaker)}
+                    className="speaker-upload-trigger"
+                    onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    title="Edit Speaker Details"
+                    title="Upload & Crop Speaker Photo (3:4)"
                   >
-                    ✏️
+                    {uploading ? "Uploading..." : "📷 Change Photo"}
                   </button>
-                )}
-                {onDeleteSpeaker && (
-                  <button
-                    type="button"
-                    className="speaker-action-btn del"
-                    onClick={() => {
-                      if (window.confirm(`Are you sure you want to remove speaker "${speaker.name}"?`)) {
-                        onDeleteSpeaker(speaker);
-                      }
-                    }}
-                    disabled={uploading}
-                    title="Remove Speaker"
-                  >
-                    🗑️
-                  </button>
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                />
-              </div>
-            )}
+                  {onEditSpeaker && (
+                    <button
+                      type="button"
+                      className="speaker-action-btn"
+                      onClick={() => onEditSpeaker(speaker)}
+                      disabled={uploading}
+                      title="Edit Speaker Details"
+                    >
+                      ✏️
+                    </button>
+                  )}
+                  {onDeleteSpeaker && (
+                    <button
+                      type="button"
+                      className="speaker-action-btn del"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to remove speaker "${speaker.name}"?`)) {
+                          onDeleteSpeaker(speaker);
+                        }
+                      }}
+                      disabled={uploading}
+                      title="Remove Speaker"
+                    >
+                      🗑️
+                    </button>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="speaker-info-block">
+              <div className="speaker-role mono">{speaker.role || "Inauguration guest"}</div>
+              <h4>{speaker.name}</h4>
+              <p>{speaker.note}</p>
+            </div>
           </div>
-          <div className="speaker-info-block">
-            <div className="speaker-role mono">{speaker.role || "Inauguration guest"}</div>
-            <h4>{speaker.name}</h4>
-            <p>{speaker.note}</p>
+          <div className="sc-face sc-back">
+            <div className="sc-back-lbl mono">The idea</div>
+            <div className="sc-topic">{speaker.topic || "To be announced"}</div>
+            <div className="sc-back-hint mono">Tap to flip back</div>
           </div>
         </div>
-        <div className="sc-face sc-back">
-          <div className="sc-back-lbl mono">The idea</div>
-          <div className="sc-topic">{speaker.topic || "To be announced"}</div>
-          <div className="sc-back-hint mono">Tap to flip back</div>
-        </div>
+        {isAdmin && (
+          <ImageCropper
+            open={Boolean(cropSrc)}
+            src={cropSrc}
+            aspectRatio={3 / 4}
+            onCancel={handleCropCancel}
+            onConfirm={handleCropConfirm}
+          />
+        )}
       </div>
-      {isAdmin && (
-        <ImageCropper
-          open={Boolean(cropSrc)}
-          src={cropSrc}
-          aspectRatio={3 / 4}
-          onCancel={handleCropCancel}
-          onConfirm={handleCropConfirm}
-        />
-      )}
-    </div>
+    </PhotoCursor>
   );
 }
 
@@ -502,9 +308,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Sponsorship",
     icon: "award",
-    defaultLeads: ["V. Lakshmi Anudeep"],
-    defaultDeputies: ["Shashi Preetham"],
-    defaultMembers: [],
     roles: [
       "Identify potential sponsors and partners",
       "Prepare sponsorship proposals and packages",
@@ -518,9 +321,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Design",
     icon: "pen",
-    defaultLeads: [],
-    defaultDeputies: [],
-    defaultMembers: ["Mohammed Nizamuddin", "Joy Vihaan", "Akshay Munnur"],
     roles: [
       "Create event branding and visual identity",
       "Design posters, banners, standees, certificates, passes, and presentations",
@@ -532,9 +332,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Photography & Videography",
     icon: "camera",
-    defaultLeads: ["Shaik Faisal Aiyan"],
-    defaultDeputies: [],
-    defaultMembers: [],
     roles: [
       "Plan photo and video coverage",
       "Assign photographers / videographers to locations",
@@ -546,9 +343,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Finance",
     icon: "chart",
-    defaultLeads: ["N. Sruthi"],
-    defaultDeputies: ["K. Srija"],
-    defaultMembers: [],
     roles: [
       "Prepare and manage the event budget",
       "Track income and expenses",
@@ -561,9 +355,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Editing",
     icon: "film",
-    defaultLeads: ["Revanth"],
-    defaultDeputies: [],
-    defaultMembers: [],
     roles: [
       "Edit promotional videos and reels",
       "Create speaker introduction videos",
@@ -575,9 +366,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Registration",
     icon: "check",
-    defaultLeads: ["Ch. Tanmay Prudhinandan"],
-    defaultDeputies: [],
-    defaultMembers: [],
     roles: [
       "Manage attendee registrations",
       "Maintain the participant database",
@@ -588,9 +376,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Event Management",
     icon: "cal",
-    defaultLeads: ["K. Mithali"],
-    defaultDeputies: ["Palle Pranay"],
-    defaultMembers: ["Harika"],
     roles: [
       "Coordinate venue logistics and stage setup",
       "Manage event day schedule and crowd control",
@@ -601,9 +386,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Content Creation",
     icon: "share",
-    defaultLeads: [],
-    defaultDeputies: [],
-    defaultMembers: ["S. Sunny Abhishek"],
     roles: [
       "Manage Instagram, LinkedIn, and other platforms",
       "Create the content calendar",
@@ -616,9 +398,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Technical",
     icon: "code",
-    defaultLeads: ["G. Manohar"],
-    defaultDeputies: ["Harshith Chepuri"],
-    defaultMembers: [],
     roles: [
       "Develop and maintain the official TEDxBIET website",
       "Implement interactive web features, countdown, and ticketing portals",
@@ -629,9 +408,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Purchasing",
     icon: "cart",
-    defaultLeads: ["Noel Charan"],
-    defaultDeputies: [],
-    defaultMembers: [],
     roles: [
       "Procure official TEDx materials, badges, and merchandise",
       "Manage vendor orders and delivery schedules",
@@ -641,9 +417,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Documentation",
     icon: "file",
-    defaultLeads: ["Tejaswini Banala"],
-    defaultDeputies: ["Harshavardhan Konda"],
-    defaultMembers: [],
     roles: [
       "Maintain all official TEDx event records and documents",
       "Prepare meeting minutes and attendance records",
@@ -660,9 +433,6 @@ const CANONICAL_DEPTS = [
   {
     name: "Hospitality",
     icon: "heart",
-    defaultLeads: ["Keerthana Chukka"],
-    defaultDeputies: [],
-    defaultMembers: [],
     roles: [
       "Welcome and host distinguished guests, speakers, and attendees",
       "Coordinate refreshments, catering, and guest accommodations",
@@ -689,39 +459,12 @@ function normalizeDeptName(teamStr) {
   return teamStr.trim();
 }
 
-const cleanNorm = (str) => (str || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-
-const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || ['gxv', 'qul6b'].join('');
-
-const DEFAULT_FACULTY = [
-  {
-    name: "Nazneen Fatima",
-    slug: "nazneen-fatima",
-    image: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/v1790871663/tedx-faculty-coordinators/nazneen-fatima.jpg`,
-    role: "Faculty CoOrdinator",
-    description: "Provides academic guidance and coordinates faculty activities to support the team’s goals and initiatives.",
-    email: "",
-    linkedin: "",
-    instagram: "",
-  },
-  {
-    name: "Rehana",
-    slug: "rehana",
-    image: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/v1790871708/tedx-faculty-coordinators/rehana.jpg`,
-    role: "Faculty CoOrdinator",
-    description: "Supports student and team activities while helping coordinate academic programs, events, and faculty involvement.",
-    email: "",
-    linkedin: "",
-    instagram: "",
-  },
-];
-
 function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
   const [search, setSearch] = useState("");
   const [activeDept, setActiveDept] = useState("all");
   const [openRoles, setOpenRoles] = useState({});
   const [dbMembers, setDbMembers] = useState([]);
-  const [faculty, setFaculty] = useState(DEFAULT_FACULTY);
+  const [faculty, setFaculty] = useState([]);
   const [uploadingId, setUploadingId] = useState(null);
   const [targetMember, setTargetMember] = useState(null);
   const fileInputRef = useRef(null);
@@ -912,27 +655,61 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
 
   const q = search.trim().toLowerCase();
 
-  // 1. Build Leadership: Organizer and Co-Organizer
+  // 1. Build Leadership: Organizer and Co-Organizer dynamically from DB
   const leadershipData = useMemo(() => {
-    return LEADERS.map((leader) => {
-      const norm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-      const lk = norm(leader.name);
-      let match = dbMembers.find((m) => {
-        const mn = norm(m.name);
-        const ms = norm(m.slug);
-        const mr = norm(m.role);
-        return (
-          mn === lk ||
-          ms === lk ||
-          (mn && (mn.includes(lk) || lk.includes(mn))) ||
-          (mr && mr.includes(norm(leader.tag)))
-        );
-      });
+    const leaders = dbMembers.filter((m) => {
+      const r = (m.role || "").toLowerCase();
+      const t = (m.team || "").toLowerCase();
+      return (
+        t === "leadership" ||
+        r.includes("organizer") ||
+        r.includes("license")
+      );
+    });
+
+    leaders.sort((a, b) => {
+      const ar = (a.role || "").toLowerCase();
+      const br = (b.role || "").toLowerCase();
+      if (ar.includes("co-organizer") && !br.includes("co-organizer")) return 1;
+      if (!ar.includes("co-organizer") && br.includes("co-organizer")) return -1;
+      return 0;
+    });
+
+    return leaders.map((m) => {
+      let defaultRoles = [
+        "Lead and oversee event operations for TEDxBIET 2026.",
+        "Coordinate team milestones, cross-department initiatives, and compliance.",
+      ];
+      if ((m.role || "").toLowerCase().includes("co-organizer")) {
+        defaultRoles = [
+          "Support the Organizer in all event operations",
+          "Monitor department progress and deadlines",
+          "Coordinate communication between teams",
+          "Assist in planning, problem-solving, and event management",
+          "Ensure smooth execution before and during the event",
+        ];
+      } else if ((m.role || "").toLowerCase().includes("organizer")) {
+        defaultRoles = [
+          "Lead and oversee the entire TEDx event",
+          "Make key decisions and ensure TEDx compliance",
+          "Coordinate all departments and speakers",
+          "Approve budgets, plans, and timelines",
+          "Represent the event with sponsors, partners, and guests",
+          "Ensure successful event execution",
+        ];
+      }
+
+      const roles = Array.isArray(m.roles) && m.roles.length > 0
+        ? m.roles
+        : defaultRoles;
+
       return {
-        ...leader,
-        photo: match?.image || "",
-        slug: match?.slug || leader.slug,
-        member: match || null,
+        name: m.name,
+        tag: m.role || "Leadership",
+        slug: m.slug || slugify(m.name),
+        roles,
+        photo: m.image || "",
+        member: m,
       };
     });
   }, [dbMembers]);
@@ -957,15 +734,14 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
     // Map each member in DB to a department
     dbMembers.forEach((m) => {
       const roleStr = (m.role || "").toLowerCase();
+      const teamStr = (m.team || "").toLowerCase();
+
       // Skip leadership if already displayed in Leadership section
       if (
-        (roleStr.includes("organizer") || roleStr.includes("license")) &&
-        !roleStr.includes("co-organizer") &&
-        !roleStr.includes("deputy")
+        teamStr === "leadership" ||
+        roleStr.includes("organizer") ||
+        roleStr.includes("license")
       ) {
-        return;
-      }
-      if (roleStr.includes("co-organizer")) {
         return;
       }
 
@@ -1001,93 +777,10 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
       else d.members.push(item);
     });
 
-    // Helper to check if a person with this name already exists in the department, leadership, or dbMembers
-    const isPersonAlreadyPresent = (dept, name) => {
-      const k = cleanNorm(name);
-      if (!k) return false;
-      // 1. Is the person in this department's leads, deputies, or members?
-      if (
-        dept.leads.some((x) => {
-          const xk = cleanNorm(x.name);
-          return xk === k || (xk.length >= 4 && (k.includes(xk) || xk.includes(k)));
-        }) ||
-        dept.deputies.some((x) => {
-          const xk = cleanNorm(x.name);
-          return xk === k || (xk.length >= 4 && (k.includes(xk) || xk.includes(k)));
-        }) ||
-        dept.members.some((x) => {
-          const xk = cleanNorm(x.name);
-          return xk === k || (xk.length >= 4 && (k.includes(xk) || xk.includes(k)));
-        })
-      ) {
-        return true;
-      }
-      // 2. Is the person in dbMembers anywhere in the database?
-      if (
-        dbMembers.some((m) => {
-          const mk = cleanNorm(m.name);
-          return mk === k || (mk.length >= 4 && (k.includes(mk) || mk.includes(k)));
-        })
-      ) {
-        return true;
-      }
-      // 3. Is the person in Leadership?
-      if (
-        LEADERS.some((l) => {
-          const lk = cleanNorm(l.name);
-          return lk === k || (lk.length >= 4 && (k.includes(lk) || lk.includes(k)));
-        })
-      ) {
-        return true;
-      }
-      return false;
-    };
-
-    // Fill in canonical default placeholders ONLY for people who do not already exist in DB or department
-    CANONICAL_DEPTS.forEach((cd) => {
-      const d = deptMap.get(cd.name);
-      cd.defaultLeads.forEach((dlName) => {
-        if (!isPersonAlreadyPresent(d, dlName)) {
-          d.leads.push({
-            name: dlName,
-            slug: slugify(dlName),
-            role: "Lead",
-            photo: "",
-            member: null,
-            isLead: true,
-            isDeputy: false,
-          });
-        }
-      });
-      cd.defaultDeputies.forEach((ddName) => {
-        if (!isPersonAlreadyPresent(d, ddName)) {
-          d.deputies.push({
-            name: ddName,
-            slug: slugify(ddName),
-            role: "Deputy Lead",
-            photo: "",
-            member: null,
-            isLead: false,
-            isDeputy: true,
-          });
-        }
-      });
-      cd.defaultMembers.forEach((dmName) => {
-        if (!isPersonAlreadyPresent(d, dmName)) {
-          d.members.push({
-            name: dmName,
-            slug: slugify(dmName),
-            role: "Member",
-            photo: "",
-            member: null,
-            isLead: false,
-            isDeputy: false,
-          });
-        }
-      });
-    });
-
-    return Array.from(deptMap.values());
+    // Return departments that have members
+    return Array.from(deptMap.values()).filter(
+      (d) => d.leads.length > 0 || d.deputies.length > 0 || d.members.length > 0
+    );
   }, [dbMembers]);
 
   // Compute stats dynamically
@@ -1217,71 +910,78 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
               const s = leader.slug;
               const photo = leader.photo;
               return (
-                <div key={leader.name} className="lead-card">
-                  <div className="lead-top">
-                    <div className="lead-avatar-wrap">
-                      <Link to={`/${s}`} className="lead-card-link" aria-label={leader.name}>
-                        <div className="avatar lg">
-                          {photo ? (
-                            <img src={photo} alt={leader.name} className="avatar-img" />
-                          ) : (
-                            getInitials(leader.name)
-                          )}
-                        </div>
-                      </Link>
-                      {isAdmin && leader.member && (
-                        <button
-                          type="button"
-                          className="member-upload-trigger"
-                          title={`Upload photo for ${leader.name}`}
-                          onClick={() => {
-                            setTargetMember(leader.member);
-                            fileInputRef.current?.click();
-                          }}
-                        >
-                          {uploadingId === leader.member._id ? "…" : "📷"}
-                        </button>
-                      )}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                        <div>
-                          <div className="team-tag mono">{leader.tag}</div>
-                          <Link to={`/${s}`} className="lead-name">
-                            {leader.name}
-                          </Link>
-                        </div>
-                        {isAdmin && (
-                          <div className="member-admin-actions">
-                            <button
-                              type="button"
-                              className="member-action-btn"
-                              title="Edit Member"
-                              onClick={() => handleOpenEditModal(leader.member, leader)}
-                            >
-                              ✏️
-                            </button>
-                            {leader.member && (
-                              <button
-                                type="button"
-                                className="member-action-btn del"
-                                title="Delete Member"
-                                onClick={() => handleDeleteMember(leader.member)}
-                              >
-                                🗑️
-                              </button>
+                <PhotoCursor
+                  key={leader.name}
+                  name={leader.name}
+                  sub={leader.tag || "Leadership"}
+                  image={photo}
+                >
+                  <div className="lead-card">
+                    <div className="lead-top">
+                      <div className="lead-avatar-wrap">
+                        <Link to={`/${s}`} className="lead-card-link" aria-label={leader.name}>
+                          <div className="avatar lg">
+                            {photo ? (
+                              <img src={photo} alt={leader.name} className="avatar-img" />
+                            ) : (
+                              getInitials(leader.name)
                             )}
                           </div>
+                        </Link>
+                        {isAdmin && leader.member && (
+                          <button
+                            type="button"
+                            className="member-upload-trigger"
+                            title={`Upload photo for ${leader.name}`}
+                            onClick={() => {
+                              setTargetMember(leader.member);
+                              fileInputRef.current?.click();
+                            }}
+                          >
+                            {uploadingId === leader.member._id ? "…" : "📷"}
+                          </button>
                         )}
                       </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          <div>
+                            <div className="team-tag mono">{leader.tag}</div>
+                            <Link to={`/${s}`} className="lead-name">
+                              {leader.name}
+                            </Link>
+                          </div>
+                          {isAdmin && (
+                            <div className="member-admin-actions">
+                              <button
+                                type="button"
+                                className="member-action-btn"
+                                title="Edit Member"
+                                onClick={() => handleOpenEditModal(leader.member, leader)}
+                              >
+                                ✏️
+                              </button>
+                              {leader.member && (
+                                <button
+                                  type="button"
+                                  className="member-action-btn del"
+                                  title="Delete Member"
+                                  onClick={() => handleDeleteMember(leader.member)}
+                                >
+                                  🗑️
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                    <ul className="team-list">
+                      {leader.roles.map((role, idx) => (
+                        <li key={idx}>{role}</li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="team-list">
-                    {leader.roles.map((role, idx) => (
-                      <li key={idx}>{role}</li>
-                    ))}
-                  </ul>
-                </div>
+                </PhotoCursor>
               );
             })}
           </div>
@@ -1315,19 +1015,25 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
                     {/* Department Leads */}
                     {d.displayLeads.map((item) => (
                       <div key={item.name} className="member-row-wrap">
-                        <Link to={`/${item.slug}`} className="member-row is-lead">
-                          <div className="avatar sm">
-                            {item.photo ? (
-                              <img src={item.photo} alt={item.name} className="avatar-img" />
-                            ) : (
-                              getInitials(item.name)
-                            )}
-                          </div>
-                          <span>
-                            <span className="nm">{item.name}</span>
-                            <span className="rl mono">Lead</span>
-                          </span>
-                        </Link>
+                        <PhotoCursor
+                          name={item.name}
+                          sub={`${d.name} · Lead`}
+                          image={item.photo}
+                        >
+                          <Link to={`/${item.slug}`} className="member-row is-lead">
+                            <div className="avatar sm">
+                              {item.photo ? (
+                                <img src={item.photo} alt={item.name} className="avatar-img" />
+                              ) : (
+                                getInitials(item.name)
+                              )}
+                            </div>
+                            <span>
+                              <span className="nm">{item.name}</span>
+                              <span className="rl mono">Lead</span>
+                            </span>
+                          </Link>
+                        </PhotoCursor>
                         {isAdmin && (
                           <div className="member-admin-actions">
                             <button
@@ -1368,19 +1074,25 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
                     {/* Deputy Leads */}
                     {d.displayDeputies.map((item) => (
                       <div key={item.name} className="member-row-wrap">
-                        <Link to={`/${item.slug}`} className="member-row is-lead">
-                          <div className="avatar sm">
-                            {item.photo ? (
-                              <img src={item.photo} alt={item.name} className="avatar-img" />
-                            ) : (
-                              getInitials(item.name)
-                            )}
-                          </div>
-                          <span>
-                            <span className="nm">{item.name}</span>
-                            <span className="rl mono">Deputy Lead</span>
-                          </span>
-                        </Link>
+                        <PhotoCursor
+                          name={item.name}
+                          sub={`${d.name} · Deputy Lead`}
+                          image={item.photo}
+                        >
+                          <Link to={`/${item.slug}`} className="member-row is-lead">
+                            <div className="avatar sm">
+                              {item.photo ? (
+                                <img src={item.photo} alt={item.name} className="avatar-img" />
+                              ) : (
+                                getInitials(item.name)
+                              )}
+                            </div>
+                            <span>
+                              <span className="nm">{item.name}</span>
+                              <span className="rl mono">Deputy Lead</span>
+                            </span>
+                          </Link>
+                        </PhotoCursor>
                         {isAdmin && (
                           <div className="member-admin-actions">
                             <button
@@ -1421,19 +1133,25 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
                     {/* Members */}
                     {d.displayMembers.map((item) => (
                       <div key={item.name} className="member-row-wrap">
-                        <Link to={`/${item.slug}`} className="member-row">
-                          <div className="avatar sm">
-                            {item.photo ? (
-                              <img src={item.photo} alt={item.name} className="avatar-img" />
-                            ) : (
-                              getInitials(item.name)
-                            )}
-                          </div>
-                          <span>
-                            <span className="nm">{item.name}</span>
-                            <span className="rl mono">{item.role || "Member"}</span>
-                          </span>
-                        </Link>
+                        <PhotoCursor
+                          name={item.name}
+                          sub={`${d.name} · ${item.role || "Member"}`}
+                          image={item.photo}
+                        >
+                          <Link to={`/${item.slug}`} className="member-row">
+                            <div className="avatar sm">
+                              {item.photo ? (
+                                <img src={item.photo} alt={item.name} className="avatar-img" />
+                              ) : (
+                                getInitials(item.name)
+                              )}
+                            </div>
+                            <span>
+                              <span className="nm">{item.name}</span>
+                              <span className="rl mono">{item.role || "Member"}</span>
+                            </span>
+                          </Link>
+                        </PhotoCursor>
                         {isAdmin && (
                           <div className="member-admin-actions">
                             <button
@@ -1534,22 +1252,28 @@ function TeamOrganizingSection({ isAdmin, token, onShowToast }) {
               const facSlug = f.slug || (f.name ? f.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : '');
               return (
                 <div key={f._id || f.name} className="faculty-card-wrap" style={{ position: "relative" }}>
-                  <Link to={`/${facSlug}`} className="faculty-card glass-card" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                  <div className="faculty-top">
-                    <div className="avatar lg">
-                      {f.image ? (
-                        <img src={f.image} alt={f.name} className="avatar-img" />
-                      ) : (
-                        getInitials(f.name)
-                      )}
-                    </div>
-                    <div>
-                      <div className="team-tag mono">{f.role || "Faculty Coordinator"}</div>
-                      <h4 className="faculty-name">{f.name}</h4>
-                      <p className="faculty-desc">{f.description}</p>
-                    </div>
-                  </div>
-                </Link>
+                  <PhotoCursor
+                    name={f.name}
+                    sub={f.role || "Faculty Coordinator"}
+                    image={f.image}
+                  >
+                    <Link to={`/${facSlug}`} className="faculty-card glass-card" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                      <div className="faculty-top">
+                        <div className="avatar lg">
+                          {f.image ? (
+                            <img src={f.image} alt={f.name} className="avatar-img" />
+                          ) : (
+                            getInitials(f.name)
+                          )}
+                        </div>
+                        <div>
+                          <div className="team-tag mono">{f.role || "Faculty Coordinator"}</div>
+                          <h4 className="faculty-name">{f.name}</h4>
+                          <p className="faculty-desc">{f.description}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  </PhotoCursor>
                 {isAdmin && (
                   <div className="member-admin-actions" style={{ position: "absolute", top: "12px", right: "12px" }}>
                     <button
@@ -1671,15 +1395,12 @@ export default function Home() {
 
   const { d, h, m, s } = useCountdown(targetTimestamp);
 
-  const [speakers, setSpeakers] = useState([
-    { _id: "default-1", name: "Ajay Kumar", note: "Soulfulvolgs", role: "Inauguration guest", topic: "Creative Storytelling & Digital Journey", image: "" },
-    { _id: "default-2", name: "Hari Pavan", note: "HR", role: "Inauguration guest", topic: "Human Potential & Organizational Leadership", image: "" },
-  ]);
+  const [speakers, setSpeakers] = useState([]);
 
   useEffect(() => {
     getSpeakers()
       .then((res) => {
-        if (Array.isArray(res) && res.length > 0) {
+        if (Array.isArray(res)) {
           setSpeakers(res);
         }
       })
@@ -1929,7 +1650,7 @@ export default function Home() {
         <RevealCard style={{maxWidth:"1120px",width:"100%"}}>
           <div className="eyebrow-tag mono">05 &mdash; The organizing team</div>
           <h2 className="section-h2">TEAM &amp; <span className="h-x">x</span> ROLES</h2>
-          <p className="section-p">Every department, every lead, and every responsibility behind TEDxBIET 2026. Hover over a name to preview who is behind it &mdash; click for the full profile.</p>
+          <p className="section-p">Every department, every lead, and every responsibility behind TEDxBIET 2026. Click a profile for their full mission and details.</p>
           <TeamOrganizingSection isAdmin={isAdmin} token={token} onShowToast={showToast} />
         </RevealCard>
       </section>
